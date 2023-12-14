@@ -1,17 +1,30 @@
 let mediaRecorder;
 let recordedChunks = [];
+let audioStream;
 
 const startRecording = async () => {
-  const stream = await navigator.mediaDevices.getDisplayMedia({
-    video: { mediaSource: 'screen' }
+  const displayStream = await navigator.mediaDevices.getDisplayMedia({
+    video: { mediaSource: 'screen' },
+    audio: true, // Capture user audio
   });
-  
+
+  const audioContext = new AudioContext();
+  const audioDestination = audioContext.createMediaStreamDestination();
+
+  // Create a stream to capture system audio
+  const systemAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const systemAudioSource = audioContext.createMediaStreamSource(systemAudioStream);
+  systemAudioSource.connect(audioDestination);
+
+  // Combine screen video stream with system audio
+  displayStream.addTrack(audioDestination.stream.getAudioTracks()[0]);
+
   const options = { mimeType: 'video/webm; codecs=vp9' };
-  mediaRecorder = new MediaRecorder(stream, options);
-  
+  mediaRecorder = new MediaRecorder(displayStream, options);
+
   mediaRecorder.ondataavailable = handleDataAvailable;
   mediaRecorder.onstop = handleStop;
-  
+
   recordedChunks = [];
   mediaRecorder.start();
 };
