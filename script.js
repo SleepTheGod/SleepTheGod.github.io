@@ -1,46 +1,31 @@
-let mediaRecorder;
-let recordedChunks = [];
-let audioStream;
+$(document).ready(function () {
 
-const startRecording = async () => {
-  const displayStream = await navigator.mediaDevices.getDisplayMedia({
-    video: { mediaSource: 'screen' },
-    audio: true, // Capture user audio
+  function second_passed() {
+    $('.clock').removeClass('is-off');
+  }
+  setTimeout(second_passed, 2000)
+
+  $('.switcher').on('click', function (e) {
+    e.preventDefault();
+    $('.screen').toggleClass('glitch');
   });
 
-  const audioContext = new AudioContext();
-  const audioDestination = audioContext.createMediaStreamDestination();
+  // Update time to 24-hour format
+  var newDate = new Date();
+  newDate.setDate(newDate.getDate());
 
-  // Create a stream to capture system audio
-  const systemAudioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  const systemAudioSource = audioContext.createMediaStreamSource(systemAudioStream);
-  systemAudioSource.connect(audioDestination);
+  setInterval(function () {
 
-  // Combine screen video stream with system audio
-  displayStream.addTrack(audioDestination.stream.getAudioTracks()[0]);
+    var hours = new Date().getHours();
+    var minutes = new Date().getMinutes();
+    var seconds = new Date().getSeconds();
 
-  const options = { mimeType: 'video/webm; codecs=vp9' };
-  mediaRecorder = new MediaRecorder(displayStream, options);
+    // Update time string with 24-hour format
+    var realTime = (hours < 10 ? '0' : '') + hours + ':' + (minutes < 10 ? '0' : '') + minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 
-  mediaRecorder.ondataavailable = handleDataAvailable;
-  mediaRecorder.onstop = handleStop;
+    $('.time').html(realTime);
+    $('.time').attr('data-time', realTime);
 
-  recordedChunks = [];
-  mediaRecorder.start();
-};
+  }, 1000);
 
-const handleDataAvailable = (event) => {
-  if (event.data.size > 0) {
-    recordedChunks.push(event.data);
-  }
-};
-
-const handleStop = () => {
-  const recordedBlob = new Blob(recordedChunks, { type: 'video/webm' });
-  const videoElement = document.getElementById('recordedVideo');
-  videoElement.src = URL.createObjectURL(recordedBlob);
-};
-
-document.getElementById('startRecording').addEventListener('click', () => {
-  startRecording();
 });
