@@ -1,80 +1,42 @@
 body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   margin: 0;
-  background-color: black;
+  background: tomato;
 }
 
-.glitch-counter {
-  font-size: 5em;
-  color: white;
-  text-align: center;
-  font-family: 'Courier New', monospace;
-  position: relative;
-  animation: glitch 0.5s infinite;
-  overflow: hidden;
-}
+.roulette {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
 
-@keyframes glitch {
-  0% {
-    transform: none;
-    clip-path: inset(0 0 0 0);
-    filter: grayscale(0) brightness(100%);
+  .wheel img {
+    transition: transform 10s cubic-bezier(0.3, 1, 0.7, 1),
+      10s filter cubic-bezier(0.1, 1, 0.8, 1),
+      10s -webkit-filter cubic-bezier(0.1, 1, 0.8, 1);
+    will-change: transform;
+    border-radius: 50%;
+    box-shadow: 0 0 100px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 600px;
+    /* border:4px dashed rgba(255,255,255, .5); */
   }
-  5% {
-    transform: translate(-5px, -5px);
-    clip-path: inset(1% 0 1% 0);
-    filter: grayscale(1) brightness(150%);
+
+  .arrow {
+    width: 0;
+    height: 0;
+    border: 80px solid transparent;
+    border-top: 110px solid tomato;
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, -100px);
+    z-index: 20;
+    border-radius: 0.35em;
   }
-  10% {
-    transform: translate(5px, 5px);
-    clip-path: inset(2% 0 2% 0);
-    filter: grayscale(0) brightness(100%);
-  }
-  15% {
-    transform: translate(-5px, -5px);
-    clip-path: inset(3% 0 3% 0);
-    filter: grayscale(1) brightness(150%);
-  }
-  20% {
-    transform: translate(5px, 5px);
-    clip-path: inset(4% 0 4% 0);
-    filter: grayscale(0) brightness(100%);
-  }
-  25% {
-    transform: translate(-5px, -5px);
-    clip-path: inset(5% 0 5% 0);
-    filter: grayscale(1) brightness(150%);
-  }
-  30% {
-    transform: translate(5px, 5px);
-    clip-path: inset(6% 0 6% 0);
-    filter: grayscale(0) brightness(100%);
-  }
-  35% {
-    transform: none;
-    clip-path: inset(0 0 0 0);
-    filter: grayscale(0) brightness(100%);
-  }
-  100% {
-    transform: none;
-    clip-path: inset(0 0 0 0);
-    filter: grayscale(0) brightness(100%);
+  .arrow:after {
   }
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('https://media1.giphy.com/media/4SEL2Uloutyg4nMATW/giphy.gif');
-  mix-blend-mode: screen;
-  opacity: 0.6;
-  pointer-events: none;
-  z-index: -1;
+.spin {
+  cursor: crosshair;
 }
