@@ -1,29 +1,47 @@
-perfecthalf = ((1 / 37) * 360) / 2;
-
-let currentLength = perfecthalf;
-
-$(".wheel img").css("transform", "rotate(" + perfecthalf + "deg)");
-
-$(".spin").click(() => {
-  $(".wheel img").css("filter", "blur(8px)");
-
-  spininterval = getRandomInt(0, 37) * (360 / 37) + getRandomInt(3, 4) * 360;
-  currentLength += spininterval;
-
-  numofsecs = spininterval;
-
-  console.log(currentLength);
-  $(".wheel img").css("transform", "rotate(" + currentLength + "deg)");
-
-  setTimeout(function () {
-    $(".wheel img").css("filter", "blur(0px)");
-  }, numofsecs);
+new Vue({
+  el: '#app',
+  data() {
+      return {
+          walletConnected: false,
+          betAmount: 0,
+          contract: null,
+      };
+  },
+  methods: {
+      async connectWallet() {
+          if (window.ethereum) {
+              await window.ethereum.request({ method: 'eth_requestAccounts' });
+              this.walletConnected = true;
+              this.initContract();
+          } else {
+              alert('MetaMask is not installed!');
+          }
+      },
+      initContract() {
+          const contractAddress = 'YOUR_CONTRACT_ADDRESS';
+          const contractABI = []; // Contract ABI
+          this.contract = new web3.eth.Contract(contractABI, contractAddress);
+      },
+      async placeBet() {
+          if (this.contract) {
+              const accounts = await web3.eth.getAccounts();
+              this.contract.methods.placeBet(/* parameters */)
+                  .send({ from: accounts[0], value: this.betAmount })
+                  .then(result => {
+                      // Handle result
+                  })
+                  .catch(error => {
+                      // Handle error
+                  });
+          }
+      },
+  },
 });
+const express = require('express');
+const app = express();
 
-function getRandomInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+// Middleware and routes setup
 
-$(document).ready(function() {
-  $(".spin").click();
-})
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});

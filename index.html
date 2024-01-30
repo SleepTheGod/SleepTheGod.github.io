@@ -1,16 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roulette</title>
-</head>
-<body>
-  <div class="roulette">
-    <div class="wheel spin">
-      <div class="arrow"></div>
-      <img src="https://i.imgur.com/N01W3Ks.png" alt="Roulette Wheel">
-    </div>
+<html>
+<!-- HTML: Basic structure -->
+<title>Crypto Dice</title>
+<div id="app">
+  <button @click="connectWallet">Connect Wallet</button>
+  <div v-if="walletConnected">
+      <input v-model.number="betAmount" type="number" placeholder="Bet Amount">
+      <button @click="placeBet">Place Bet</button>
   </div>
-</body>
+</div>
 </html>
