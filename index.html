@@ -165,8 +165,6 @@
     document.addEventListener('contextmenu', event => event.preventDefault());
 
     document.addEventListener('keydown', event => {
-        // Disable F12 key, Ctrl+Shift+I, Ctrl+Shift+J, and Ctrl+U
-        // This already includes the common shortcut for viewing source in Firefox and other browsers (Ctrl+U).
         if (event.key === 'F12' || 
             (event.ctrlKey && event.shiftKey && event.key === 'I') || // Disable Ctrl+Shift+I
             (event.ctrlKey && event.shiftKey && event.key === 'J') || // Disable Ctrl+Shift+J
@@ -174,7 +172,16 @@
             event.preventDefault();
         }
     });
+
+    window.addEventListener('beforeunload', function (e) {
+        // The standard for the beforeunload event is to set e.preventDefault() for the confirmation dialog to appear.
+        e.preventDefault();
+        // For most browsers, setting e.returnValue to any non-void value should trigger the confirmation dialog.
+        // However, the custom message might not be shown due to browser security policies, and a standard message may be displayed instead.
+        e.returnValue = '';
+    });
 </script>
+
 
 </body>
 </html>
