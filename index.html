@@ -1,241 +1,212 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>BitBet</title>
-    <style>
-        /* General Styles */
-        body {
-            background-color: #0e0e10;
-            color: #fff;
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+<style>
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        #app {
-            border: 1px solid #ffd700;
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 500px;
-            text-align: center;
-            background-color: #1a1a1d;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-            animation: pulse 2s infinite;
-        }
+body, html {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+    margin: 0;
+    padding: 20px;
+    height: 100%;
+}
 
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(255, 215, 0, 1);
-            }
-            100% {
-                box-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
-            }
-        }
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        button {
-            background-color: #ffd700;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            margin: 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s, color 0.3s;
-        }
+h1 {
+    color: #f7931a; /* Bitcoin Orange */
+    text-align: center;
+}
 
-        button:hover {
-            background-color: #ffea00;
-            color: #333;
-        }
+.game-area, .chat-window {
+    background-color: #333;
+    border: 1px solid #555;
+    color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
 
-        input[type="number"], input[type="text"] {
-            padding: 10px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            width: calc(100% - 24px);
-            margin-bottom: 20px;
-        }
+.game-area {
+    display: flex;
+    justify-content: space-between;
+}
 
-        /* Dice and Bet Amount Styles */
-        .dice-container {
-            margin-top: 20px;
-        }
+.crash-chart {
+    width: 70%;
+    height: 200px;
+    background-color: #eee; /* Placeholder for chart, consider integrating a dynamic chart */
+}
 
-        .dice {
-            width: 50px;
-            height: 50px;
-            background-color: #fff;
-            color: #000;
-            display: inline-block;
-            margin: 0 5px;
-            border-radius: 5px;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            line-height: 50px;
-        }
+.info-panel, .bet-panel, .chat-input-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
 
-        /* Chat Room Styles */
-        #chatRoom {
-            border: 1px solid #ffd700;
-            margin-top: 20px;
-            padding: 10px;
-            height: 200px;
-            overflow-y: scroll;
-            background-color: #2a2a2d;
-        }
+.multiplier {
+    font-size: 2em;
+    text-align: center;
+}
 
-        .message {
-            background-color: #333;
-            color: #fff;
-            padding: 5px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-        }
+input, button {
+    padding: 10px;
+    border-radius: 5px;
+    font-size: 1em;
+}
 
-        /* Chat input container */
-        #chatInputContainer {
-            display: flex;
-            margin-top: 10px;
-        }
+input {
+    background-color: #222;
+    border: 1px solid #444;
+    color: #fff;
+    text-align: center;
+}
 
-        #messageInput {
-            flex-grow: 1;
-            margin-right: 10px;
-        }
+button {
+    background-color: #f7931a;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            #app {
-                width: 90%;
-                margin: 20px;
-            }
+button:hover {
+    background-color: #ffc107;
+}
 
-            button, input[type="number"], input[type="text"] {
-                width: 100%;
-            }
-        }
-    </style>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+.chat-window {
+    width: 100%;
+}
+
+#chat-messages {
+    list-style: none;
+    padding: 0;
+    height: 150px;
+    overflow-y: auto;
+    background-color: #121212;
+    border: 1px solid #444;
+    padding: 5px;
+    border-radius: 5px;
+}
+
+#chat-messages li {
+    margin-bottom: 5px;
+}
+
+footer {
+    text-align: center;
+    font-size: 0.9em;
+    color: #aaa;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Crash Game</title>
 </head>
 <body>
-    <div id="app">
-        <h1>BitBet</h1>
-        <button id="connectWallet">Connect Wallet</button>
-        <div id="userAccount"></div>
-        <div id="balance">Balance: 100</div>
-        <div id="game">
-            <input type="number" id="betAmount" placeholder="Bet Amount">
-            <button id="rollDice" disabled>Roll Dice</button>
-            <div id="diceResult"></div>
-        </div>
-
-        <!-- Chat Room -->
-        <div id="chatRoom"></div>
-        <div id="chatInputContainer">
-            <input type="text" id="messageInput" placeholder="Type your message..." onkeyup="sendMessageOnEnter(event)">
-            <button id="sendMessage">Send</button>
+<div class="container">
+    <h1>Crash Game</h1>
+    <div class="game-area">
+        <div class="crash-chart"></div>
+        <div class="info-panel">
+            <div class="multiplier">x1.00</div>
+            <button class="btn-cashout">Cash Out</button>
+            <div class="bet-panel">
+                <input type="number" min="0.01" step="0.01" placeholder="Bet Amount">
+                <button class="btn-bet">Bet</button>
+            </div>
         </div>
     </div>
+    <div class="chat-window">
+        <h2>Chat</h2>
+        <ul id="chat-messages"></ul>
+        <form id="chat-form">
+            <input type="text" name="message" placeholder="Enter message">
+            <button type="submit">Send</button>
+        </form>
+    </div>
+</div>
+<footer>
+    <p>Developed by Taylor Christian Newsome</p>
+</footer>
+<script>
+const crashChart = document.querySelector('.crash-chart');
+const multiplierDisplay = document.querySelector('.multiplier');
+const btnCashout = document.querySelector('.btn-cashout');
+const chatMessages = document.getElementById('chat-messages');
+const chatForm = document.getElementById('chat-form');
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let userAccount;
-            let balance = 100; // Starting balance for demonstration
+let gameStarted = false;
+let currentMultiplier = 1.00;
+let crashPoint = Math.random() * 10 + 1;
+let crashInterval;
 
-            const connectWalletButton = document.getElementById('connectWallet');
-            const rollDiceButton = document.getElementById('rollDice');
-            const diceResultDiv = document.getElementById('diceResult');
-            const userAccountDiv = document.getElementById('userAccount');
-            const balanceDiv = document.getElementById('balance');
+function updateMultiplier() {
+  if (gameStarted) {
+    currentMultiplier += 0.01;
+    multiplierDisplay.textContent = `x${currentMultiplier.toFixed(2)}`;
+    multiplierDisplay.style.color = 'green'; // Make the multiplier green
+    if (currentMultiplier >= crashPoint) {
+      crashGame();
+    }
+  }
+}
 
-            connectWalletButton.addEventListener('click', async function() {
-                if (typeof window.ethereum !== 'undefined') {
-                    try {
-                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                        userAccount = accounts[0];
-                        userAccountDiv.innerHTML = `Connected Account: ${userAccount}`;
-                        rollDiceButton.disabled = false;
-                    } catch (error) {
-                        console.error("Could not get accounts", error);
-                    }
-                } else {
-                    alert('MetaMask is not installed!');
-                }
-            });
+function crashGame() {
+  clearInterval(crashInterval);
+  gameStarted = false;
+  crashChart.style.backgroundColor = 'red';
+  multiplierDisplay.style.color = 'red'; // Make the multiplier red on crash
+  addMessage(`Game crashed at x${currentMultiplier.toFixed(2)}!`);
+}
 
-            rollDiceButton.addEventListener('click', function() {
-                const betAmount = parseInt(document.getElementById('betAmount').value);
-                if (!betAmount || betAmount <= 0 || betAmount > balance) {
-                    alert("Please enter a valid bet amount");
-                    return;
-                }
+btnCashout.addEventListener('click', () => {
+  if (gameStarted) {
+    addMessage(`Cashed out at x${currentMultiplier.toFixed(2)}!`, true);
+    crashGame();
+  }
+});
 
-                const diceResult = rollDice();
-                diceResultDiv.innerHTML = `You rolled: ${diceResult}`;
-                checkWin(diceResult, betAmount);
-            });
+chatForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const message = chatForm.querySelector('input[type="text"]').value;
+  addMessage(message);
+  chatForm.reset();
+});
 
-            function rollDice() {
-                return Math.floor(Math.random() * 6) + 1; // Simulate rolling a six-sided dice
-            }
+function addMessage(message, cashedOut = false) {
+  const newMessage = document.createElement('li');
+  newMessage.textContent = message;
+  if (cashedOut) {
+    newMessage.style.color = 'green'; // Make cash out messages green
+  }
+  chatMessages.appendChild(newMessage);
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
-            function checkWin(diceNumber, betAmount) {
-                if (diceNumber >= 4) {
-                    diceResultDiv.innerHTML += '<br>You win!';
-                    balance += betAmount; // Increment balance by bet amount
-                } else {
-                    diceResultDiv.innerHTML += '<br>You lose!';
-                    balance -= betAmount; // Decrement balance by bet amount
-                }
-                updateBalance();
-            }
-
-            function updateBalance() {
-                balanceDiv.innerHTML = `Balance: ${balance}`;
-            }
-
-            // Chat Room Logic
-            const chatRoom = document.getElementById('chatRoom');
-            const sendMessageButton = document.getElementById('sendMessage');
-            const messageInput = document.getElementById('messageInput');
-
-            sendMessageButton.addEventListener('click', sendMessage);
-
-            window.sendMessageOnEnter = function(event) {
-                if (event.key === 'Enter') {
-                    sendMessage();
-                }
-            };
-
-            function sendMessage() {
-                const message = messageInput.value.trim();
-                if (message) {
-                    const messageElement = document.createElement('div');
-                    messageElement.classList.add('message');
-                    messageElement.textContent = `${userAccount ? userAccount.substring(0, 6) : 'Anon'}: ${message}`;
-                    chatRoom.appendChild(messageElement);
-                    messageInput.value = '';
-                    chatRoom.scrollTop = chatRoom.scrollHeight; // Scroll to the bottom
-                }
-            }
-        });
-
-        // Prevent right-click and F12
-        document.addEventListener('contextmenu', event => event.preventDefault());
-        document.onkeydown = function(e) {
-            if (e.key === 'F12') {
-                return false;
-            }
-        };
-    </script>
+document.querySelector('.btn-bet').addEventListener('click', () => {
+  if (!gameStarted) {
+    gameStarted = true;
+    currentMultiplier = 1.00; // Reset multiplier
+    crashPoint = Math.random() * 10 + 1; // New crash point
+    crashChart.style.backgroundColor = '#eee'; // Reset chart color
+    multiplierDisplay.style.color = 'white'; // Reset multiplier color to white
+    crashInterval = setInterval(updateMultiplier, 100);
+  }
+});
+</script>
 </body>
 </html>
