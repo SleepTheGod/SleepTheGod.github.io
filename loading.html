@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hackers?</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@300;400&display=swap" rel="stylesheet">
+<style>
+body {
+    background-color: #0f0f0f;
+    color: #33ff33;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Source Code Pro', monospace;
+}
+
+.centered {
+    text-align: center;
+    position: relative;
+}
+
+.centered h1 {
+    font-size: 3rem;
+    animation: glitch 1s linear infinite;
+}
+
+@keyframes glitch {
+    0% {
+        text-shadow: 2px 0 #33ff33, -2px 0 #33ff33;
+    }
+    33% {
+        text-shadow: 5px 0 #33ff33, -5px 0 #33ff33;
+    }
+    66% {
+        text-shadow: 2px 0 #33ff33, -2px 0 #33ff33;
+    }
+    100% {
+        text-shadow: 0 0 #33ff33;
+    }
+}
+
+#enterButton {
+    background-color: transparent;
+    border: 2px solid #33ff33;
+    color: #33ff33;
+    padding: 10px 20px;
+    font-size: 24px;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+    animation: pulse 1s infinite;
+}
+
+#enterButton:hover {
+    background-color: #33ff33;
+    color: #0f0f0f;
+    transform: scale(1.1);
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(51, 255, 51, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 20px 15px rgba(51, 255, 51, 0.7);
+    }
+}
+</style>
+</head>
+<body>
+<div class="centered">
+    <h1>Loading....</h1>
+    <button id="enterButton" onclick="initiateSequence()">Click Me Pussy!</button>
+    <div id="countdown"></div>
+    <audio id="gameOverSound" src="https://www.myinstants.com/media/sounds/pacman-die.mp3"></audio>
+</div>
+<script>
+function initiateSequence() {
+    const sound = document.getElementById('gameOverSound');
+    sound.play();
+    document.getElementById('enterButton').style.animation = 'pulse 2s infinite';
+
+    let count =3; // Countdown starts from 3 seconds
+    const countdownElement = document.getElementById('countdown');
+    countdownElement.innerText = count;
+
+    const countdownInterval = setInterval(() => {
+        count--;
+        countdownElement.innerText = count;
+        if (count === 0) {
+            clearInterval(countdownInterval);
+            window.location.href = atob('aHR0cHM6Ly9hZG1pbi50cnloYWNrbWUuY29t');
+        }
+    }, 1000); // Countdown decrements every second
+}
+</script>
+</body>
+</html>
