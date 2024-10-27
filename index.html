@@ -1,168 +1,270 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ghost Search</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #1e1e2f;
-            color: #ffffff;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-        }
+<style>
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        .logo {
-            width: 200px; /* Adjust the width of the logo as needed */
-            height: auto; /* Maintain aspect ratio */
-            margin-bottom: 0.5em;
-        }
+body, html {
+    height: 100%;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #121212;
+    color: #ffffff;
+}
 
-        p {
-            font-size: 1.2em;
-            margin-bottom: 1.5em;
-            max-width: 600px;
-        }
+/* Game Container */
+.game-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100vh;
+    padding: 20px;
+}
 
-        .search-box {
-            position: relative;
-            width: 80%;
-            max-width: 500px;
-        }
+header {
+    text-align: center;
+    padding: 20px 0;
+}
 
-        input[type="text"] {
-            width: 100%;
-            padding: 15px 20px;
-            border-radius: 25px;
-            border: none;
-            outline: none;
-            font-size: 1em;
-            margin-bottom: 10px;
-        }
+header h1 {
+    color: #f7931a; /* Bitcoin Orange */
+    font-size: 2em;
+}
 
-        button {
-            width: 100%;
-            padding: 15px 20px;
-            border: none;
-            border-radius: 25px;
-            background-color: #4caf50;
-            color: white;
-            font-size: 1em;
-            cursor: pointer;
-        }
+/* Betting Area */
+.betting-area {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
 
-        button:hover {
-            background-color: #45a049;
-        }
+.betting-area label, .betting-area input, .betting-area button {
+    font-size: 1em;
+    padding: 10px;
+    border-radius: 5px;
+}
 
-        .result-container {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            width: 80%;
-            max-width: 600px;
-            max-height: 400px;
-            background-color: #333344;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 20px;
-        }
+.betting-area input {
+    background-color: #333;
+    border: 1px solid #555;
+    color: #fff;
+}
 
-        .result {
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
-            padding: 20px;
-            box-sizing: border-box;
-            word-wrap: break-word;
-            text-align: left;
-        }
+.betting-area button {
+    background-color: #f7931a;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
-        .error {
-            color: red;
-            font-weight: bold;
-        }
+.betting-area button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
 
-        footer {
-            margin-top: 2em;
-            font-size: 0.9em;
-        }
+.betting-area button:hover:not(:disabled) {
+    background-color: #ffc107;
+}
 
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-radius: 50%;
-            border-top: 4px solid #4caf50;
-            width: 30px;
-            height: 30px;
-            animation: spin 2s linear infinite;
-            margin: 20px auto;
-        }
+/* Graph Area */
+.graph-area {
+    background-color: #333;
+    border: 1px solid #555;
+    color: #fff;
+    text-align: center;
+    padding: 20px;
+    font-size: 2em;
+    margin: auto;
+    width: 90%;
+    max-width: 600px;
+    border-radius: 10px;
+}
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+/* Chat Area Styles */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    background-color: #333;
+    border: 1px solid #555;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.chat-messages {
+    height: 150px;
+    overflow-y: auto;
+    background-color: #121212;
+    border: 1px solid #444;
+    padding: 5px;
+    color: #fff;
+    border-radius: 5px;
+}
+
+.chat-input-container {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input-container input, .chat-input-container button {
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.chat-input-container input {
+    flex-grow: 1;
+    background-color: #222;
+    border: 1px solid #444;
+    color: #fff;
+}
+
+.chat-input-container button {
+    background-color: #f7931a;
+    color: #000;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.chat-input-container button:hover {
+    background-color: #ffc107;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 0.9em;
+}
+
+footer p {
+    color: #aaa;
+}
+</style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bitcoin Crash Game</title>
 </head>
 <body>
-    <img class="logo" src="https://files.catbox.moe/ysb8bo.png" alt="DumpDB Logo">
-    <p>This search engine is provided solely for educational purposes to determine if your information has been compromised in a data breach.</p>
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Enter your email, username or domain">
-        <button type="button" onclick="searchBreaches()">Search</button>
-    </div>
-    <div id="loader" class="loader" style="display: none;"></div>
-    <div id="resultContainer" class="result-container">
-        <div id="result" class="result"></div>
-    </div>
-    <footer>© 2024 Ghost Search. All rights reserved.</footer>
+<div class="game-container">
+    <header>
+        <img src="https://i.ibb.co/sRVynNX/548e4806-7403-4d0f-baee-db93fbdf3fa6-removebg-preview.png" alt="Bitcoin Crash Game Logo" id="game-logo" style="width: auto; height: auto;">
+    </header>
+    <main>
+        <div class="betting-area">
+            <label for="bet-amount">Bet Amount:</label>
+            <input type="number" id="bet-amount" placeholder="0.0001 BTC">
+            <button id="place-bet">Place Bet</button>
+            <button id="start-game" disabled>Start</button>
+            <button id="stop-game" disabled>Stop</button>
+        </div>
+        <div class="graph-area" id="graph">0.00x</div>
 
-    <script>
-        async function searchBreaches() {
-            const query = document.getElementById('searchInput').value;
-            const resultDiv = document.getElementById('result');
-            const loader = document.getElementById('loader');
-            const resultContainer = document.getElementById('resultContainer');
+        <!-- Chat Area -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chat-messages"></div>
+            <div class="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Type a message...">
+                <button id="send-message">Send</button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>Play responsibly. Real Bitcoin is used in this game.</p>
+    </footer>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const placeBetButton = document.getElementById('place-bet');
+    const startGameButton = document.getElementById('start-game');
+    const stopGameButton = document.getElementById('stop-game');
+    const betAmountInput = document.getElementById('bet-amount');
+    const graphArea = document.getElementById('graph');
+    let gameInterval = null;
+    let isGameRunning = false;
+    let crashPoint; // Defined globally to be accessible in endGame
 
-            // Clear previous results and show loader
-            resultDiv.textContent = '';
-            resultContainer.style.display = 'none';
-            loader.style.display = 'block';
-
-            try {
-                const response = await fetch(`\x68\x74\x74\x70\x73\x3a\x2f\x2f\x62\x65\x74\x61\x2e\x73\x6e\x75\x73\x62\x61\x73\x65\x2e\x63\x6f\x6d\x2f\x76\x32\x2f\x63\x6f\x6d\x62\x6f\x2f${query}`,{method:String.fromCharCode(71,69,84)});
-
-                loader.style.display = 'none';
-
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-
-                const data = await response.json();
-
-                if (data.length === 0) {
-                    resultDiv.textContent = 'No data found for the given query.';
-                } else {
-                    resultDiv.innerHTML = '';
-                    const formattedData = JSON.stringify(data, null, 2);
-                    const pre = document.createElement('pre');
-                    pre.textContent = formattedData;
-                    resultDiv.appendChild(pre);
-                }
-                resultContainer.style.display = 'flex';
-            } catch (error) {
-                loader.style.display = 'none';
-                resultDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
-                resultContainer.style.display = 'flex';
-            }
+    placeBetButton.addEventListener('click', function() {
+        const betAmount = parseFloat(betAmountInput.value);
+        if (isNaN(betAmount) || betAmount <= 0) {
+            alert('Please enter a valid bet amount.');
+            return;
         }
-    </script>
+        betAmountInput.disabled = true;
+        placeBetButton.disabled = true;
+        startGameButton.disabled = false;
+    });
+
+    startGameButton.addEventListener('click', function() {
+        if(!isGameRunning) {
+            startGame();
+            isGameRunning = true;
+            startGameButton.disabled = true;
+            stopGameButton.disabled = false;
+        }
+    });
+
+    stopGameButton.addEventListener('click', function() {
+        if(isGameRunning) {
+            endGame(parseFloat(graphArea.innerText));
+        }
+    });
+
+    function startGame() {
+        crashPoint = Math.random() * 9 + 1; // Resets each game start
+        console.log('Crash Point:', crashPoint.toFixed(2) + 'x');
+        let currentMultiplier = 1.00;
+        graphArea.innerText = currentMultiplier.toFixed(2) + 'x';
+        gameInterval = setInterval(function() {
+            currentMultiplier += 0.01;
+            graphArea.innerText = currentMultiplier.toFixed(2) + 'x';
+            if (currentMultiplier >= crashPoint) {
+                endGame(currentMultiplier);
+            }
+        }, 100);
+    }
+
+    function endGame(finalMultiplier) {
+        clearInterval(gameInterval);
+        graphArea.style.color = finalMultiplier >= crashPoint ? 'red' : 'green';
+        setTimeout(() => graphArea.style.color = '#fff', 2000); // Reset color after 2 seconds
+        isGameRunning = false;
+        betAmountInput.disabled = false;
+        placeBetButton.disabled = false;
+        startGameButton.disabled = true;
+        stopGameButton.disabled = true;
+        alert('Game Over! Final Multiplier: ' + finalMultiplier.toFixed(2) + 'x');
+    }
+
+    // Chat logic with Enter to send functionality
+    const chatInput = document.getElementById('chat-input');
+    chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('send-message').click();
+        }
+    });
+
+    document.getElementById('send-message').addEventListener('click', function() {
+        const message = chatInput.value.trim();
+        if (message) {
+            const chatMessages = document.getElementById('chat-messages');
+            const msgElement = document.createElement('div');
+            msgElement.textContent = message;
+            chatMessages.appendChild(msgElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to the bottom
+            chatInput.value = ''; // Clear input field
+        }
+    });
+});
+</script>
 </body>
 </html>
