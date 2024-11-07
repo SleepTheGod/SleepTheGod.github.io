@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PS3 XMB Interface</title>
+    <style>
+        body {
+            background-color: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+        }
+        #vid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            opacity: 1;
+            transition: opacity 1s;
+        }
+        #title {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        .warning {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        #menu {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        .xmb-main {
+            display: flex;
+            transition: margin-right 0.5s;
+        }
+        .xmb-title {
+            padding: 0 1rem;
+            font-size: 1.5rem;
+            opacity: 0.5;
+            transition: opacity 0.5s;
+            cursor: pointer;
+        }
+        .xmb-title.active {
+            opacity: 1;
+        }
+        .submenu {
+            display: none;
+            margin-top: 1rem;
+        }
+        .submenu.active {
+            display: block;
+        }
+        .clock {
+            position: absolute;
+            top: 5%;
+            right: 5%;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+        .hidden-button {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body>
+    <video id="vid" src="https://menonparik.github.io/xmb-on-web/images/vid.mp4" loop muted></video>
+    <div id="title">Welcome to the PS3 Developers Wiki</div>
+    <div class="warning">Press Enter to visit the site</div>
+    <div id="menu">
+        <div class="xmb-main">
+            <!-- Your original XMB titles here -->
+        </div>
+        <!-- More menu structure -->
+    </div>
+    <div class="clock" id="date"></div>
+    <audio id="startup" src="https://menonparik.github.io/xmb-on-web/audio/startup.mp3"></audio>
+    <audio id="nav" src="https://menonparik.github.io/xmb-on-web/audio/nav.mp3"></audio>
+    <button class="hidden-button" id="hidden-button"></button>
+
+    <script>
+        const video = document.getElementById("vid");
+        const titles = document.getElementById("title");
+        const warning = document.querySelectorAll(".warning")[0];
+        const menu = document.getElementById("menu");
+        const clockSection = document.querySelectorAll(".clock")[0];
+        const dateTime = document.getElementById("date");
+        const startupSound = document.getElementById("startup");
+        const navSound = document.getElementById("nav");
+
+        let sectionNumber = 0;
+        let subsection = 0;
+        let multiSection;
+        startupSound.play();
+
+        let checkLoad = () =>{
+            return new Promise((resolve) => {
+                window.onload = resolve;
+            });
+        };
+
+        let titlesTimeOut = () =>{
+            return new Promise(resolve => {
+                setTimeout(resolve, 10000);
+            });
+        };
+
+        let warningTimeOut = () => {
+            return new Promise(resolve => {
+                setTimeout(resolve, 7000);
+            });
+        };
+
+        let warningDisplay = async () =>{
+            await titlesTimeOut();
+            titles.remove();
+            warning.style.opacity = '1';
+            setTimeout(() =>{
+                warning.style.opacity = '0';
+                warning.remove();
+            }, 6000);
+            await warningTimeOut();
+        };
+
+        let sideClock = () => {
+            let d  = new Date();
+            let clock = `${d.getDate()}/${d.getMonth()+1} ${d.getHours()}:${d.getMinutes()}`;
+            dateTime.innerText = clock;
+            setTimeout(sideClock, 1000);
+        };
+
+        let loadTitles = async () =>{
+            await checkLoad();
+            video.play();
+            video.style.opacity = '1';
+            titles.style.opacity = '1';
+            await warningDisplay();
+        };
+
+        let loadMenu = async () =>{
+            await loadTitles();
+            menu.style.opacity = '1';
+            sideClock();
+            clockSection.style.opacity = '1';
+        };
+
+        let moveMenu = (hd, ultraHd, fullHd) =>{
+            let width = document.body.clientWidth;
+            if (width < 1400) {
+                xmbMain.style.marginRight = hd;
+            }
+            else if (width >= 2560 && width <= 3840) {
+                xmbMain.style.marginRight = ultraHd;
+            }
+            else {
+                xmbMain.style.marginRight = fullHd;
+            }
+        };
+
+        let focusSection = (sn, right, left) =>{
+            section[sn].classList.add("active");
+            if(right === true){
+                section[sn-1].classList.remove("active");
+            }
+            else if(left === true){
+                section[sn+1].classList.remove("active");
+            }
+            switchSection();
+        };
+
+        let switchSection = () =>{
+            multiSection = false;
+            switch (sectionNumber) {
+                case 0:
+                    moveMenu('-40%', 0, 0);
+                    break;
+                case 1:
+                    moveMenu('-10%', '18%', '18%');
+                    multiSection = true;
+                    break;
+                case 2:
+                    moveMenu('22%', '32%', '39%');
+                    break;
+                case 3:
+                    moveMenu('50%', '47%', '60%');
+                    break;
+                case 4:
+                    moveMenu('76%', '62%', '77%');
+                    break;
+                case 5:
+                    moveMenu('100%', '77%', '97%');
+                    break;
+            }
+        };
+
+        let focusSubMenu = (sn, sub, down, up) =>{
+            switch(sub){
+                case 0:
+                    if(up){
+                        submenu[sub+1][sn].classList.remove("active");
+                        submenu[sub][sn].classList.remove("inactive");
+                    }
+                    break;
+                case 1:
+                    if(down){
+                        submenu[sub-1][sn].classList.add("inactive");
+                        submenu[sub][sn].classList.add("active");
+                    }
+                    else if(up){
+                        if(multiSection){
+                            submenu[sub+1][sn-1].classList.remove("active");
+                            submenu[sub-1][sn].classList.remove("gotop");
+                            submenu[sub][sn].classList.add("active");
+                        }
+                    }
+                case 2:
+                    if(down){
+                        if (multiSection) {
+                            submenu[sub-2][sn].classList.add("gotop");
+                            submenu[sub-1][sn].classList.remove("active");
+                            submenu[sub][sn - 1].classList.add("active");
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        // Detect Enter key to redirect
+        document.body.addEventListener('keydown', (e) =>{
+            if(e.key === 'Enter'){
+                window.location.href = "https://www.psdevwiki.com/";
+            }
+        });
+
+        loadMenu();
+    </script>
+</body>
+</html>
