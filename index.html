@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayBackScanner</title>
+    <style>
+        body {
+            font-family: "Courier New", Courier, monospace;
+            background-color: #0d0d0d;
+            color: #00ff00;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            background: #1a1a1a;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        h1 {
+            text-align: center;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        label {
+            display: block;
+            margin: 20px 0 10px;
+            font-size: 1.2em;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            background-color: #0d0d0d;
+            color: #00ff00;
+        }
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2em;
+            color: #0d0d0d;
+            background-color: #00ff00;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #009900;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        .result {
+            padding: 10px;
+            background-color: #0d0d0d;
+            border: 1px solid #00ff00;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+        .ascii-art {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 12px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .ascii-art span {
+            color: #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WayBackScanner</h1>
+        <div class="ascii-art">
+            <span>███████  ██████  █████  ███    ██ ███    ██ ███████ ██████</span><br>
+            <span>██      ██      ██   ██ ████   ██ ████   ██ ██      ██   ██</span><br>
+            <span>███████ ██      ███████ ██ ██  ██ ██ ██  ██ █████   ██████</span><br>
+            <span>     ██ ██      ██   ██ ██  ██ ██ ██  ██ ██ ██      ██   ██</span><br>
+            <span>███████  ██████ ██   ██ ██   ████ ██   ████ ███████ ██   ██</span>
+        </div>
+        <label for="url">Enter the URL to scan:</label>
+        <input type="text" id="url" placeholder="e.g., api.hackerone.com">
+        <button id="scanButton">Scan Wayback Machine</button>
+        <div id="results" class="results"></div>
+    </div>
+
+    <script>
+        async function scanUrl(baseUrl) {
+            const urlsToScan = [
+                `https://web.archive.org/cdx/search/cdx?url=*.${baseUrl}&output=xml&fl=original&collapse=urlkey`,
+                `https://web.archive.org/cdx/search/cdx?url=${baseUrl}*&output=xml&fl=original&collapse=urlkey`
+            ];
+            const allResults = [];
+
+            for (let url of urlsToScan) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const text = await response.text();
+                        if (text.startsWith('<?xml')) {
+                            const parser = new DOMParser();
+                            const xml = parser.parseFromString(text, "text/xml");
+                            const originals = xml.getElementsByTagName("original");
+                            for (let original of originals) {
+                                allResults.push(original.textContent);
+                            }
+                        } else {
+                            allResults.push(`Non-XML response from: ${url}`);
+                        }
+                    } else {
+                        allResults.push(`Error fetching ${url}: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    allResults.push(`Error scanning ${url}: ${error.message}`);
+                }
+            }
+            return allResults;
+        }
+
+        document.getElementById("scanButton").addEventListener("click", async () => {
+            const url = document.getElementById("url").value.trim();
+            const resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = "";
+
+            if (!url) {
+                resultsContainer.innerHTML = "<p class='result'>Please enter a URL to scan.</p>";
+                return;
+            }
+
+            resultsContainer.innerHTML = "<p class='result'>Scanning in progress...</p>";
+            const results = await scanUrl(url);
+
+            resultsContainer.innerHTML = results.map(result => `<div class='result'>${result}</div>`).join("");
+        });
+    </script>
+</body>
+</html>
