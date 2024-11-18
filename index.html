@@ -6,6 +6,142 @@
     <title>WayBackScanner</title>
     <style>
         body {
+            font-family: "Courier New", monospace;
+            background: black;
+            color: lime;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin: 20px;
+        }
+
+        .ascii-art {
+            color: lime;
+            margin: 20px auto;
+            white-space: pre-wrap;
+            font-size: 12px;
+            line-height: 1.2;
+        }
+
+        .scanner-container {
+            margin: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 60%;
+            margin: 10px;
+            border: 1px solid lime;
+            background: black;
+            color: lime;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: lime;
+            color: black;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: darkgreen;
+        }
+
+        .results {
+            margin: 20px;
+            text-align: left;
+            padding: 10px;
+            border: 1px solid lime;
+            background: black;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WayBackScanner</h1>
+    <div class="ascii-art">
+        ███    ███  █████  ██    ██     ██████   █████   ██████ ██   ██ <br>
+        ████  ████ ██   ██  ██  ██      ██   ██ ██   ██ ██      ██  ██  <br>
+        ██ ████ ██ ███████   ████       ██████  ███████ ██      █████   <br>
+        ██  ██  ██ ██   ██    ██        ██   ██ ██   ██ ██      ██  ██  <br>
+         ███ ███  ██   ██    ██        ██████  ██   ██  ██████ ██   ██ <br>
+    </div>
+    <div class="scanner-container">
+        <input type="text" id="urlInput" placeholder="Enter URL (e.g., api.hackerone.com)">
+        <button onclick="scanURL()">Scan</button>
+    </div>
+    <div id="results" class="results">
+        <p>Results will appear here...</p>
+    </div>
+    <script>
+        async function scanURL() {
+            const baseURL = document.getElementById('urlInput').value.trim();
+            if (!baseURL) {
+                alert("Please enter a URL!");
+                return;
+            }
+
+            const proxy = "https://cors-anywhere.herokuapp.com/";
+            const urlsToScan = [
+                `https://web.archive.org/cdx/search/cdx?url=*.${baseURL}&output=xml&fl=original&collapse=urlkey`,
+                `https://web.archive.org/cdx/search/cdx?url=${baseURL}*&output=xml&fl=original&collapse=urlkey`
+            ];
+
+            const resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = "<p>Scanning... Please wait.</p>";
+
+            let allResults = [];
+            for (let url of urlsToScan) {
+                try {
+                    const response = await fetch(proxy + url);
+                    const text = await response.text();
+
+                    if (text.startsWith("<?xml")) {
+                        const parser = new DOMParser();
+                        const xml = parser.parseFromString(text, "application/xml");
+                        const urls = xml.getElementsByTagName("original");
+                        
+                        for (let original of urls) {
+                            allResults.push(original.textContent);
+                        }
+                    } else {
+                        console.error("Non-XML content received", text);
+                    }
+                } catch (error) {
+                    console.error("Error scanning:", error);
+                }
+            }
+
+            if (allResults.length > 0) {
+                resultsContainer.innerHTML = allResults
+                    .map(url => `<p>curl ${url}</p>`)
+                    .join("");
+            } else {
+                resultsContainer.innerHTML = "<p>No results found or an error occurred.</p>";
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayBackScanner</title>
+    <style>
+        body {
             font-family: "Courier New", Courier, monospace;
             background-color: #0d0d0d;
             color: #00ff00;
