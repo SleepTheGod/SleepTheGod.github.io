@@ -3,173 +3,145 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Develop.GitHub - {{ page.title }}</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+  <title>Animated Loading</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lettering.js/0.6.1/jquery.lettering.min.js"></script>
   <style>
-    /* General reset for consistency */
-    body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, a {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro:400);
+
+    html,
+    body {
+      height: 100%;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-      font-size: 16px;
-      line-height: 1.5;
-      color: #24292e;
-      background-color: #f6f8fa;
-    }
-
-    /* Header Styling */
-    header {
-      background-color: #24292e;
-      color: white;
-      padding: 15px 0;
+      background: radial-gradient(#222922, #000500);
+      font-family: 'Source Code Pro', monospace;
+      font-weight: 400;
+      overflow: hidden;
+      padding: 30px 0 0 30px;
       text-align: center;
     }
 
-    header img {
-      max-width: 200px;
-      margin-bottom: 10px;
+    .word {
+      bottom: 0;
+      color: #fff;
+      font-size: 2.5em;
+      height: 2.5em;
+      left: 0;
+      line-height: 2.5em;
+      margin: auto;
+      right: 0;
+      position: absolute;
+      text-shadow: 0 0 10px rgba(50, 255, 50, 0.5), 0 0 5px rgba(100, 255, 100, 0.5);
+      top: 0;
     }
 
-    header nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: bold;
+    .word span {
+      display: inline-block;
+      transform: translateX(100%) scale(0.9);
+      transition: transform 500ms;
     }
 
-    header nav a:hover {
-      text-decoration: underline;
+    .word .done {
+      color: #6f6;
+      transform: translateX(0) scale(1);
     }
 
-    /* Main Content */
-    #wrapper {
-      display: flex;
-      flex-direction: column;
-      margin: 20px auto;
-      max-width: 1200px;
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .content {
-      padding: 20px;
-    }
-
-    .deprecated {
-      background: #ffe4e6;
-      color: #d73a49;
-      border: 1px solid #d73a49;
-      border-radius: 6px;
-      padding: 10px;
-      margin-bottom: 20px;
-    }
-
-    .deprecated a {
-      color: #d73a49;
-      font-weight: bold;
-    }
-
-    .deprecated a:hover {
-      text-decoration: underline;
-    }
-
-    /* Sidebar */
-    aside {
-      background: #f6f8fa;
-      padding: 20px;
-      border-left: 1px solid #d1d5da;
-    }
-
-    aside h3 {
-      font-size: 18px;
-      margin-bottom: 10px;
-    }
-
-    aside ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    aside ul li {
-      margin-bottom: 10px;
-    }
-
-    aside ul li a {
-      color: #0366d6;
-      text-decoration: none;
-    }
-
-    aside ul li a:hover {
-      text-decoration: underline;
-    }
-
-    /* Footer */
-    footer {
-      background: #24292e;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    footer a {
-      color: white;
-      text-decoration: none;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
+    .overlay {
+      background-image: linear-gradient(transparent 0%, rgba(10, 16, 10, 0.5) 50%);
+      background-size: 1000px 2px;
+      bottom: 0;
+      content: '';
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
     }
   </style>
 </head>
 <body>
-  <header>
-    <img src="/images/logo.png" alt="GitHub Logo">
-    <nav>
-      <a href="https://developer.github.com/v3/">API v3</a>
-      <a href="https://support.github.com/">Support</a>
-    </nav>
-  </header>
-
-  <main id="wrapper">
-    <div class="content">
-      <div class="deprecated">
-        This API is deprecated. Check out <a href="https://developer.github.com/v3/">API v3</a> for the latest documentation.
-      </div>
-      {{ content }}
-    </div>
-    <aside>
-      <h3>Resources</h3>
-      <ul>
-        {% for post in site.posts reversed %}
-        <li>
-          {% if page.title == post.title %}
-          <strong>{{ page.title }}</strong>
-          {% else %}
-          <a href="{{ post.url }}">{{ post.title }}</a>
-          {% endif %}
-        </li>
-        {% endfor %}
-      </ul>
-      <p>
-        This website is <a href="https://github.com/github/develop.github.com" target="_blank">open source</a>. Please help us by contributing!
-      </p>
-    </aside>
-  </main>
-
-  <footer>
-    <p>&copy; <span id="year"></span> GitHub, Inc. All rights reserved. <a href="https://github.com">Home</a></p>
-  </footer>
+  <div class="word">LOADING...</div>
+  <div class="overlay"></div>
 
   <script>
-    // Dynamic year update
-    document.getElementById("year").textContent = new Date().getFullYear();
+    function Ticker(elem) {
+      elem.lettering();
+      this.done = false;
+      this.cycleCount = 5;
+      this.cycleCurrent = 0;
+      this.chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()-_=+{}|[]\\;\':"<>?,./`~'.split('');
+      this.charsCount = this.chars.length;
+      this.letters = elem.find('span');
+      this.letterCount = this.letters.length;
+      this.letterCurrent = 0;
+
+      this.letters.each(function () {
+        var $this = $(this);
+        $this.attr('data-orig', $this.text());
+        $this.text('-');
+      });
+    }
+
+    Ticker.prototype.getChar = function () {
+      return this.chars[Math.floor(Math.random() * this.charsCount)];
+    };
+
+    Ticker.prototype.reset = function () {
+      this.done = false;
+      this.cycleCurrent = 0;
+      this.letterCurrent = 0;
+      this.letters.each(function () {
+        var $this = $(this);
+        $this.text($this.attr('data-orig'));
+        $this.removeClass('done');
+      });
+      this.loop();
+    };
+
+    Ticker.prototype.loop = function () {
+      var self = this;
+
+      this.letters.each(function (index, elem) {
+        var $elem = $(elem);
+        if (index >= self.letterCurrent) {
+          if ($elem.text() !== ' ') {
+            $elem.text(self.getChar());
+            $elem.css('opacity', Math.random());
+          }
+        }
+      });
+
+      if (this.cycleCurrent < this.cycleCount) {
+        this.cycleCurrent++;
+      } else if (this.letterCurrent < this.letterCount) {
+        var currLetter = this.letters.eq(this.letterCurrent);
+        this.cycleCurrent = 0;
+        currLetter.text(currLetter.attr('data-orig')).css('opacity', 1).addClass('done');
+        this.letterCurrent++;
+      } else {
+        this.done = true;
+      }
+
+      if (!this.done) {
+        requestAnimationFrame(function () {
+          self.loop();
+        });
+      } else {
+        setTimeout(function () {
+          self.reset();
+        }, 750);
+      }
+    };
+
+    $(document).ready(function () {
+      var $words = $('.word');
+      $words.each(function () {
+        var $this = $(this),
+          ticker = new Ticker($this).reset();
+        $this.data('ticker', ticker);
+      });
+    });
   </script>
 </body>
 </html>
