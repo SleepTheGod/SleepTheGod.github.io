@@ -1,282 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WayBackScanner</title>
-    <style>
-        body {
-            font-family: "Courier New", monospace;
-            background: black;
-            color: lime;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Develop.GitHub - {{ page.title }}</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/default.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" rel="stylesheet">
+  <style>
+    /* General reset for consistency */
+    body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, a {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-        h1 {
-            font-size: 2em;
-            margin: 20px;
-        }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      font-size: 16px;
+      line-height: 1.5;
+      color: #24292e;
+      background-color: #f6f8fa;
+    }
 
-        .ascii-art {
-            color: lime;
-            margin: 20px auto;
-            white-space: pre-wrap;
-            font-size: 12px;
-            line-height: 1.2;
-        }
+    /* Header Styling */
+    header {
+      background-color: #24292e;
+      color: white;
+      padding: 15px 0;
+      text-align: center;
+    }
 
-        .scanner-container {
-            margin: 20px;
-        }
+    header img {
+      max-width: 200px;
+      margin-bottom: 10px;
+    }
 
-        input[type="text"] {
-            padding: 10px;
-            font-size: 16px;
-            width: 60%;
-            margin: 10px;
-            border: 1px solid lime;
-            background: black;
-            color: lime;
-        }
+    header nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
 
-        button {
-            padding: 10px 20px;
-            font-size: 16px;
-            background: lime;
-            color: black;
-            border: none;
-            cursor: pointer;
-        }
+    header nav a:hover {
+      text-decoration: underline;
+    }
 
-        button:hover {
-            background: darkgreen;
-        }
+    /* Main Content */
+    #wrapper {
+      display: flex;
+      flex-direction: column;
+      margin: 20px auto;
+      max-width: 1200px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
 
-        .results {
-            margin: 20px;
-            text-align: left;
-            padding: 10px;
-            border: 1px solid lime;
-            background: black;
-            overflow-y: auto;
-            max-height: 300px;
-        }
-    </style>
+    .content {
+      padding: 20px;
+    }
+
+    .deprecated {
+      background: #ffe4e6;
+      color: #d73a49;
+      border: 1px solid #d73a49;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 20px;
+    }
+
+    .deprecated a {
+      color: #d73a49;
+      font-weight: bold;
+    }
+
+    .deprecated a:hover {
+      text-decoration: underline;
+    }
+
+    /* Sidebar */
+    aside {
+      background: #f6f8fa;
+      padding: 20px;
+      border-left: 1px solid #d1d5da;
+    }
+
+    aside h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    aside ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    aside ul li {
+      margin-bottom: 10px;
+    }
+
+    aside ul li a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+
+    aside ul li a:hover {
+      text-decoration: underline;
+    }
+
+    /* Footer */
+    footer {
+      background: #24292e;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-    <h1>WayBackScanner</h1>
-    <div class="ascii-art">
-        ███    ███  █████  ██    ██     ██████   █████   ██████ ██   ██ <br>
-        ████  ████ ██   ██  ██  ██      ██   ██ ██   ██ ██      ██  ██  <br>
-        ██ ████ ██ ███████   ████       ██████  ███████ ██      █████   <br>
-        ██  ██  ██ ██   ██    ██        ██   ██ ██   ██ ██      ██  ██  <br>
-         ███ ███  ██   ██    ██        ██████  ██   ██  ██████ ██   ██ <br>
+  <header>
+    <img src="/images/logo.png" alt="GitHub Logo">
+    <nav>
+      <a href="https://developer.github.com/v3/">API v3</a>
+      <a href="https://support.github.com/">Support</a>
+    </nav>
+  </header>
+
+  <main id="wrapper">
+    <div class="content">
+      <div class="deprecated">
+        This API is deprecated. Check out <a href="https://developer.github.com/v3/">API v3</a> for the latest documentation.
+      </div>
+      {{ content }}
     </div>
-    <div class="scanner-container">
-        <input type="text" id="urlInput" placeholder="Enter URL (e.g., api.hackerone.com)">
-        <button onclick="scanURL()">Scan</button>
-    </div>
-    <div id="results" class="results">
-        <p>Results will appear here...</p>
-    </div>
-    <script>
-        async function scanURL() {
-            const baseURL = document.getElementById('urlInput').value.trim();
-            if (!baseURL) {
-                alert("Please enter a URL!");
-                return;
-            }
+    <aside>
+      <h3>Resources</h3>
+      <ul>
+        {% for post in site.posts reversed %}
+        <li>
+          {% if page.title == post.title %}
+          <strong>{{ page.title }}</strong>
+          {% else %}
+          <a href="{{ post.url }}">{{ post.title }}</a>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      <p>
+        This website is <a href="https://github.com/github/develop.github.com" target="_blank">open source</a>. Please help us by contributing!
+      </p>
+    </aside>
+  </main>
 
-            const proxy = "https://cors-anywhere.herokuapp.com/";
-            const urlsToScan = [
-                `https://web.archive.org/cdx/search/cdx?url=*.${baseURL}&output=xml&fl=original&collapse=urlkey`,
-                `https://web.archive.org/cdx/search/cdx?url=${baseURL}*&output=xml&fl=original&collapse=urlkey`
-            ];
+  <footer>
+    <p>&copy; <span id="year"></span> GitHub, Inc. All rights reserved. <a href="https://github.com">Home</a></p>
+  </footer>
 
-            const resultsContainer = document.getElementById("results");
-            resultsContainer.innerHTML = "<p>Scanning... Please wait.</p>";
-
-            let allResults = [];
-            for (let url of urlsToScan) {
-                try {
-                    const response = await fetch(proxy + url);
-                    const text = await response.text();
-
-                    if (text.startsWith("<?xml")) {
-                        const parser = new DOMParser();
-                        const xml = parser.parseFromString(text, "application/xml");
-                        const urls = xml.getElementsByTagName("original");
-                        
-                        for (let original of urls) {
-                            allResults.push(original.textContent);
-                        }
-                    } else {
-                        console.error("Non-XML content received", text);
-                    }
-                } catch (error) {
-                    console.error("Error scanning:", error);
-                }
-            }
-
-            if (allResults.length > 0) {
-                resultsContainer.innerHTML = allResults
-                    .map(url => `<p>curl ${url}</p>`)
-                    .join("");
-            } else {
-                resultsContainer.innerHTML = "<p>No results found or an error occurred.</p>";
-            }
-        }
-    </script>
-</body>
-</html>
-
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WayBackScanner</title>
-    <style>
-        body {
-            font-family: "Courier New", Courier, monospace;
-            background-color: #0d0d0d;
-            color: #00ff00;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 800px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            background: #1a1a1a;
-            box-shadow: 0 0 20px #00ff00;
-        }
-        h1 {
-            text-align: center;
-            color: #00ff00;
-            text-shadow: 0 0 10px #00ff00;
-        }
-        label {
-            display: block;
-            margin: 20px 0 10px;
-            font-size: 1.2em;
-        }
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            font-size: 1em;
-            border: 2px solid #00ff00;
-            border-radius: 5px;
-            background-color: #0d0d0d;
-            color: #00ff00;
-        }
-        button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            font-size: 1.2em;
-            color: #0d0d0d;
-            background-color: #00ff00;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        button:hover {
-            background-color: #009900;
-        }
-        .results {
-            margin-top: 20px;
-        }
-        .result {
-            padding: 10px;
-            background-color: #0d0d0d;
-            border: 1px solid #00ff00;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            white-space: pre-wrap;
-        }
-        .ascii-art {
-            font-family: "Courier New", Courier, monospace;
-            font-size: 12px;
-            text-align: center;
-            margin: 20px 0;
-        }
-        .ascii-art span {
-            color: #00ff00;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>WayBackScanner</h1>
-        <div class="ascii-art">
-            <span>███████  ██████  █████  ███    ██ ███    ██ ███████ ██████</span><br>
-            <span>██      ██      ██   ██ ████   ██ ████   ██ ██      ██   ██</span><br>
-            <span>███████ ██      ███████ ██ ██  ██ ██ ██  ██ █████   ██████</span><br>
-            <span>     ██ ██      ██   ██ ██  ██ ██ ██  ██ ██ ██      ██   ██</span><br>
-            <span>███████  ██████ ██   ██ ██   ████ ██   ████ ███████ ██   ██</span>
-        </div>
-        <label for="url">Enter the URL to scan:</label>
-        <input type="text" id="url" placeholder="e.g., api.hackerone.com">
-        <button id="scanButton">Scan Wayback Machine</button>
-        <div id="results" class="results"></div>
-    </div>
-
-    <script>
-        async function scanUrl(baseUrl) {
-            const urlsToScan = [
-                `https://web.archive.org/cdx/search/cdx?url=*.${baseUrl}&output=xml&fl=original&collapse=urlkey`,
-                `https://web.archive.org/cdx/search/cdx?url=${baseUrl}*&output=xml&fl=original&collapse=urlkey`
-            ];
-            const allResults = [];
-
-            for (let url of urlsToScan) {
-                try {
-                    const response = await fetch(url);
-                    if (response.ok) {
-                        const text = await response.text();
-                        if (text.startsWith('<?xml')) {
-                            const parser = new DOMParser();
-                            const xml = parser.parseFromString(text, "text/xml");
-                            const originals = xml.getElementsByTagName("original");
-                            for (let original of originals) {
-                                allResults.push(original.textContent);
-                            }
-                        } else {
-                            allResults.push(`Non-XML response from: ${url}`);
-                        }
-                    } else {
-                        allResults.push(`Error fetching ${url}: ${response.statusText}`);
-                    }
-                } catch (error) {
-                    allResults.push(`Error scanning ${url}: ${error.message}`);
-                }
-            }
-            return allResults;
-        }
-
-        document.getElementById("scanButton").addEventListener("click", async () => {
-            const url = document.getElementById("url").value.trim();
-            const resultsContainer = document.getElementById("results");
-            resultsContainer.innerHTML = "";
-
-            if (!url) {
-                resultsContainer.innerHTML = "<p class='result'>Please enter a URL to scan.</p>";
-                return;
-            }
-
-            resultsContainer.innerHTML = "<p class='result'>Scanning in progress...</p>";
-            const results = await scanUrl(url);
-
-            resultsContainer.innerHTML = results.map(result => `<div class='result'>${result}</div>`).join("");
-        });
-    </script>
+  <script>
+    // Dynamic year update
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
