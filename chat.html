@@ -1,0 +1,747 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TryHackMe Chat Room - Prototype</title>
+    <style>
+        /* Root CSS Variables for TryHackMe Theme */
+        :root {
+            --th-dark-blue: #1a202c; /* Main background */
+            --th-light-gray: #e2e8f0; /* General text color */
+            --th-green: #84cc16; /* Accent green for buttons, highlights */
+            --th-chat-bubble-bg: #2d3748; /* Background for other users' chat bubbles */
+            --th-border-gray: #4a5568; /* Borders and subtle dividers */
+            --th-placeholder-text: #a0aec0; /* Placeholder text color */
+            --th-hover-green: #6aa800; /* Darker green for hover states */
+            --th-online-dot: #34d399; /* Green dot for online users */
+        }
+
+        /* General Body Styling */
+        body {
+            margin: 0;
+            font-family: "JetBrains Mono", monospace; /* Monospace for hacker feel */
+            background-color: var(--th-dark-blue);
+            color: var(--th-light-gray);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden; /* Prevent body scroll */
+            font-size: 16px; /* Base font size */
+        }
+
+        /* Main Container for the Chat Room */
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1200px; /* Wider for sidebar */
+            height: 100vh; /* Full height on mobile */
+            background-color: var(--th-dark-blue);
+            border: 1px solid var(--th-border-gray);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.6); /* More pronounced shadow */
+            border-radius: 10px; /* Slightly more rounded corners */
+            overflow: hidden; /* Ensure content stays within bounds */
+        }
+
+        /* Header Styling */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1.5rem; /* Increased padding */
+            background-color: var(--th-dark-blue);
+            border-bottom: 1px solid var(--th-border-gray);
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 1rem; /* Gap between header sections */
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; /* Increased gap */
+        }
+
+        .logo {
+            height: 36px; /* Slightly larger logo */
+            width: auto; /* Maintain aspect ratio */
+        }
+
+        .title {
+            font-size: 1.5rem; /* Larger title */
+            font-weight: 700; /* Bolder title */
+            color: #ffffff;
+            margin: 0;
+            letter-spacing: -0.025em; /* Slight letter spacing for modern look */
+        }
+
+        .nav {
+            display: none; /* Hidden by default, shown on larger screens */
+            gap: 1.5rem; /* Increased gap between nav links */
+            font-size: 0.95rem; /* Slightly larger font for nav links */
+        }
+
+        .nav-link {
+            color: var(--th-light-gray);
+            text-decoration: none;
+            transition: color 0.2s ease-in-out;
+            position: relative; /* For underline effect */
+        }
+
+        .nav-link:hover {
+            color: var(--th-green);
+        }
+
+        /* Subtle underline effect on hover for nav links */
+        .nav-link::after {
+            content: "";
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -5px;
+            left: 0;
+            background-color: var(--th-green);
+            transition: width 0.2s ease-in-out;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 0.75rem; /* Increased gap */
+        }
+
+        /* Button Base Styles */
+        .btn {
+            padding: 0.6rem 1.2rem; /* Adjusted padding */
+            border-radius: 0.4rem; /* Slightly more rounded */
+            font-size: 0.9rem; /* Slightly larger font */
+            font-weight: 600; /* Bolder text */
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            border: 1px solid transparent; /* Default transparent border */
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--th-light-gray);
+            border-color: var(--th-border-gray); /* Subtle border for ghost button */
+        }
+
+        .btn-ghost:hover {
+            color: var(--th-green);
+            border-color: var(--th-green); /* Green border on hover */
+            background-color: rgba(132, 204, 22, 0.1); /* Subtle green background on hover */
+        }
+
+        .btn-primary {
+            background-color: var(--th-green);
+            color: var(--th-dark-blue);
+            border-color: var(--th-green);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--th-hover-green); /* Darker green on hover */
+            border-color: var(--th-hover-green);
+        }
+
+        /* Main Content Area (Chat + Sidebar) */
+        .main-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden; /* Hide overflow from chat area and sidebar */
+        }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem; /* Increased padding */
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* Gap between messages */
+            background-color: var(--th-dark-blue); /* Ensure background consistency */
+            border-right: 1px solid var(--th-border-gray); /* Separator from sidebar */
+
+            /* Custom scrollbar for Webkit browsers */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: var(--th-green) var(--th-dark-blue); /* Firefox */
+        }
+
+        .chat-area::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-area::-webkit-scrollbar-track {
+            background: var(--th-dark-blue);
+        }
+
+        .chat-area::-webkit-scrollbar-thumb {
+            background-color: var(--th-border-gray);
+            border-radius: 4px;
+            border: 2px solid var(--th-dark-blue);
+        }
+
+        .chat-area::-webkit-scrollbar-thumb:hover {
+            background-color: var(--th-green);
+        }
+
+        /* Message Containers */
+        .message-container {
+            display: flex;
+            align-items: flex-end; /* Align timestamp to bottom of bubble */
+            gap: 0.5rem;
+        }
+
+        .message-container.left {
+            justify-content: flex-start;
+        }
+
+        .message-container.right {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            padding: 0.8rem 1.2rem; /* Adjusted padding */
+            border-radius: 0.6rem; /* More rounded corners for bubbles */
+            max-width: 75%; /* Slightly wider max-width for messages */
+            word-wrap: break-word;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+            position: relative; /* For timestamp positioning */
+        }
+
+        .user-message {
+            background-color: var(--th-chat-bubble-bg);
+            color: var(--th-light-gray);
+        }
+
+        .my-message {
+            background-color: var(--th-green);
+            color: var(--th-dark-blue);
+        }
+
+        .username {
+            font-weight: 700; /* Bolder username */
+            color: var(--th-green); /* Green for other users */
+            margin-right: 0.25rem; /* Space after username */
+        }
+
+        .my-message .username {
+            color: var(--th-dark-blue); /* Dark blue for 'You' */
+        }
+
+        .message-timestamp {
+            font-size: 0.75rem;
+            color: #9ca3af; /* Lighter gray for timestamps */
+            white-space: nowrap; /* Prevent timestamp from wrapping */
+            align-self: flex-end; /* Align to bottom of message bubble */
+        }
+
+        .message-container.right .message-timestamp {
+            order: -1; /* Place timestamp before bubble for right-aligned messages */
+        }
+
+        .message-content img, .message-content audio, .message-content video {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-top: 0.5rem;
+            border-radius: 0.4rem;
+        }
+
+        /* Sidebar for Online Users */
+        .sidebar {
+            width: 250px; /* Fixed width for sidebar */
+            background-color: var(--th-dark-blue);
+            border-left: 1px solid var(--th-border-gray);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+            /* Custom scrollbar for Webkit browsers */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: var(--th-green) var(--th-dark-blue); /* Firefox */
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: var(--th-dark-blue);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: var(--th-border-gray);
+            border-radius: 4px;
+            border: 2px solid var(--th-dark-blue);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: var(--th-green);
+        }
+
+        .sidebar h2 {
+            font-size: 1.2rem;
+            color: #ffffff;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            border-bottom: 1px solid var(--th-border-gray);
+            padding-bottom: 0.5rem;
+        }
+
+        .user-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+            color: var(--th-light-gray);
+        }
+
+        .online-dot {
+            width: 10px;
+            height: 10px;
+            background-color: var(--th-online-dot);
+            border-radius: 50%;
+            flex-shrink: 0; /* Prevent dot from shrinking */
+        }
+
+        /* Message Input Area */
+        .message-input-area {
+            display: flex;
+            padding: 1rem 1.5rem; /* Increased padding */
+            background-color: var(--th-dark-blue);
+            border-top: 1px solid var(--th-border-gray);
+            gap: 0.75rem; /* Gap between input and button */
+            align-items: center;
+        }
+
+        .message-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 0.4rem;
+            border: 1px solid var(--th-border-gray);
+            background-color: var(--th-chat-bubble-bg); /* Input background matches chat bubbles */
+            color: var(--th-light-gray);
+            font-family: "JetBrains Mono", monospace;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .message-input::placeholder {
+            color: var(--th-placeholder-text);
+        }
+
+        .message-input:focus {
+            border-color: var(--th-green);
+            box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.4); /* More prominent green glow on focus */
+        }
+
+        .send-button, .file-upload-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem; /* Square button */
+            border-radius: 0.4rem;
+            background-color: var(--th-green);
+            color: var(--th-dark-blue);
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            flex-shrink: 0; /* Prevent buttons from shrinking */
+        }
+
+        .send-button svg, .file-upload-button svg {
+            width: 1.35rem; /* Slightly larger icon */
+            height: 1.35rem;
+        }
+
+        .send-button:hover, .file-upload-button:hover {
+            background-color: var(--th-hover-green);
+        }
+
+        .file-upload-button {
+            background-color: var(--th-chat-bubble-bg); /* Different background for file button */
+            border: 1px solid var(--th-border-gray);
+            color: var(--th-light-gray);
+        }
+
+        .file-upload-button:hover {
+            background-color: rgba(132, 204, 22, 0.1);
+            border-color: var(--th-green);
+            color: var(--th-green);
+        }
+
+        .file-input {
+            display: none; /* Hide actual file input */
+        }
+
+        /* Screen Reader Only Text */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Responsive Adjustments */
+        @media (min-width: 768px) {
+            .container {
+                height: 90vh; /* Slightly smaller on desktop to show background */
+            }
+            .nav {
+                display: flex; /* Show navigation on larger screens */
+            }
+            .header {
+                flex-wrap: nowrap; /* Prevent wrapping */
+            }
+            .sidebar {
+                display: flex; /* Show sidebar on larger screens */
+            }
+            .chat-area {
+                border-right: 1px solid var(--th-border-gray); /* Show border when sidebar is present */
+            }
+        }
+
+        @media (max-width: 767px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1rem; /* Adjust padding for smaller screens */
+            }
+            .auth-buttons {
+                width: 100%;
+                justify-content: space-around;
+                gap: 0.5rem;
+            }
+            .btn {
+                flex: 1;
+                padding: 0.5rem 0.8rem; /* Smaller padding for buttons */
+                font-size: 0.8rem;
+            }
+            .title {
+                font-size: 1.2rem;
+            }
+            .logo {
+                height: 28px;
+            }
+            .chat-area,
+            .message-input-area {
+                padding: 1rem; /* Adjust padding for smaller screens */
+            }
+            .message-bubble {
+                max-width: 85%; /* Allow messages to take more width on small screens */
+            }
+            .sidebar {
+                display: none; /* Hide sidebar on small screens */
+            }
+            .chat-area {
+                border-right: none; /* No border when sidebar is hidden */
+            }
+        }
+    </style>
+    <!-- Using Google Fonts for JetBrains Mono for a consistent hacker aesthetic -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="logo-section">
+                <!-- TryHackMe Logo from provided URL -->
+                <img src="https://i.ibb.co/qvcKTvb/68747470733a2f2f692e696d6775722e636f6d2f33486e435a6a762e706e67.png" alt="TryHackMe Logo" class="logo">
+                <h1 class="title">TryHackMe Chat</h1>
+            </div>
+            <nav class="nav" aria-label="Main navigation">
+                <a href="#" class="nav-link">Learn</a>
+                <a href="#" class="nav-link">Compete</a>
+                <a href="#" class="nav-link">For Education</a>
+                <a href="#" class="nav-link">For Business</a>
+                <a href="#" class="nav-link">Pricing</a>
+            </nav>
+            <div class="auth-buttons">
+                <button class="btn btn-ghost" id="login-button" aria-label="Log in to your TryHackMe account">Log In</button>
+                <button class="btn btn-primary" aria-label="Join TryHackMe for free">Join for FREE</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <main class="chat-area" id="chat-area" aria-live="polite" aria-atomic="true">
+                <!-- Messages will be dynamically added here -->
+            </main>
+
+            <aside class="sidebar" id="sidebar">
+                <h2>Online Users</h2>
+                <ul class="user-list" id="online-users-list">
+                    <!-- Online users will be dynamically added here -->
+                    <li class="user-item"><span class="online-dot"></span>user1337</li>
+                    <li class="user-item"><span class="online-dot"></span>cyber_ninja</li>
+                    <li class="user-item"><span class="online-dot"></span>root_access</li>
+                    <li class="user-item"><span class="online-dot"></span>net_runner</li>
+                    <li class="user-item"><span class="online-dot"></span>You (Guest)</li>
+                </ul>
+            </aside>
+        </div>
+
+        <footer class="message-input-area">
+            <label for="file-input" class="sr-only">Upload file</label>
+            <input type="file" id="file-input" class="file-input" accept="image/*,audio/*,video/*">
+            <button class="file-upload-button" id="file-upload-trigger" aria-label="Attach file">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-paperclip"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.49"/></svg>
+            </button>
+            <label for="message-input" class="sr-only">Type your message</label>
+            <input type="text" id="message-input" placeholder="Type your message..." class="message-input">
+            <button id="send-button" class="btn btn-primary send-button" aria-label="Send message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M15 7 7 15"/></svg>
+            </button>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const messageInput = document.getElementById("message-input");
+            const sendButton = document.getElementById("send-button");
+            const chatArea = document.getElementById("chat-area");
+            const loginButton = document.getElementById("login-button");
+            const fileInput = document.getElementById("file-input");
+            const fileUploadTrigger = document.getElementById("file-upload-trigger");
+            const onlineUsersList = document.getElementById("online-users-list");
+
+            let currentUsername = "Guest"; // Default username
+            let ws; // WebSocket instance
+
+            const CHAT_STORAGE_KEY = "tryhackme_chat_messages";
+
+            // --- Utility Functions ---
+            function formatTimestamp(date) {
+                const hours = String(date.getHours()).padStart(2, '0');
+                const minutes = String(date.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
+            }
+
+            function saveMessageToLocalStorage(message) {
+                const messages = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || "[]");
+                messages.push(message);
+                localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+            }
+
+            function loadMessagesFromLocalStorage() {
+                const messages = JSON.parse(localStorage.getItem(CHAT_STORAGE_KEY) || "[]");
+                messages.forEach(msg => {
+                    addMessage(msg.username, msg.message, msg.username === currentUsername, new Date(msg.timestamp), msg.fileUrl, msg.fileType, false); // Don't save again
+                });
+            }
+
+            function addMessage(username, text, isMyMessage = false, timestamp = new Date(), fileUrl = null, fileType = null, saveToLocal = true) {
+                const messageContainer = document.createElement("div");
+                messageContainer.classList.add("message-container");
+                messageContainer.classList.add(isMyMessage ? "right" : "left");
+
+                const messageBubble = document.createElement("div");
+                messageBubble.classList.add("message-bubble");
+                messageBubble.classList.add(isMyMessage ? "my-message" : "user-message");
+
+                const messageContent = document.createElement("div");
+                messageContent.classList.add("message-content");
+
+                const usernameSpan = document.createElement("span");
+                usernameSpan.classList.add("username");
+                usernameSpan.textContent = `${username}:`;
+
+                const messageParagraph = document.createElement("p");
+                messageParagraph.appendChild(usernameSpan);
+                messageParagraph.appendChild(document.createTextNode(" " + text));
+                messageContent.appendChild(messageParagraph);
+
+                if (fileUrl && fileType) {
+                    let mediaElement;
+                    if (fileType.startsWith('image/')) {
+                        mediaElement = document.createElement('img');
+                        mediaElement.src = fileUrl;
+                        mediaElement.alt = "Uploaded image";
+                        mediaElement.crossOrigin = "anonymous"; // Important for canvas if used later
+                    } else if (fileType.startsWith('audio/')) {
+                        mediaElement = document.createElement('audio');
+                        mediaElement.controls = true;
+                        mediaElement.src = fileUrl;
+                    } else if (fileType.startsWith('video/')) {
+                        mediaElement = document.createElement('video');
+                        mediaElement.controls = true;
+                        mediaElement.src = fileUrl;
+                    }
+                    if (mediaElement) {
+                        messageContent.appendChild(mediaElement);
+                    }
+                }
+
+                messageBubble.appendChild(messageContent);
+                messageContainer.appendChild(messageBubble);
+
+                const timestampSpan = document.createElement("span");
+                timestampSpan.classList.add("message-timestamp");
+                timestampSpan.textContent = formatTimestamp(timestamp);
+                messageContainer.appendChild(timestampSpan);
+
+                chatArea.appendChild(messageContainer);
+                chatArea.scrollTo({ top: chatArea.scrollHeight, behavior: "smooth" });
+
+                if (saveToLocal) {
+                    saveMessageToLocalStorage({
+                        username: username,
+                        message: text,
+                        timestamp: timestamp.toISOString(),
+                        fileUrl: fileUrl,
+                        fileType: fileType
+                    });
+                }
+            }
+
+            function updateOnlineUsers(users) {
+                onlineUsersList.innerHTML = ''; // Clear current list
+                users.forEach(user => {
+                    const userItem = document.createElement("li");
+                    userItem.classList.add("user-item");
+                    userItem.innerHTML = `<span class="online-dot"></span>${user}`;
+                    onlineUsersList.appendChild(userItem);
+                });
+            }
+
+            // --- WebSocket Setup (Demonstration Only) ---
+            // IMPORTANT: This uses a public echo WebSocket server for demonstration.
+            // For a real TryHackMe chat, you would need a custom backend WebSocket server
+            // that integrates with TryHackMe's authentication and data storage.
+            function connectWebSocket() {
+                ws = new WebSocket("wss://echo.websocket.events"); // A simple echo server for demo
+
+                ws.onopen = () => {
+                    console.log("WebSocket connected!");
+                    addMessage("System", "Connected to chat.", false, new Date(), null, null, false); // Don't save system messages
+                    // In a real app, send a "user_joined" message to the server
+                    // ws.send(JSON.stringify({ type: "join", username: currentUsername }));
+                };
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    // This is a simplified handler for the echo server.
+                    // In a real app, you'd parse message types (chat, user_list, file_upload)
+                    if (data.type === "chat") {
+                        addMessage(data.username, data.message, data.username === currentUsername, new Date(data.timestamp), data.fileUrl, data.fileType);
+                    } else if (data.type === "user_list") {
+                        updateOnlineUsers(data.users);
+                    } else if (data.type === "file_message") {
+                        addMessage(data.username, data.message, data.username === currentUsername, new Date(data.timestamp), data.fileUrl, data.fileType);
+                    } else {
+                        // For echo server, just display what was sent back
+                        addMessage("Echo", data.message || JSON.stringify(data), false, new Date(), null, null, false); // Don't save echo messages
+                    }
+                };
+
+                ws.onclose = () => {
+                    console.log("WebSocket disconnected. Attempting to reconnect...");
+                    addMessage("System", "Disconnected from chat. Reconnecting...", false, new Date(), null, null, false);
+                    setTimeout(connectWebSocket, 3000); // Attempt to reconnect after 3 seconds
+                };
+
+                ws.onerror = (error) => {
+                    console.error("WebSocket error:", error);
+                    addMessage("System", "WebSocket error occurred.", false, new Date(), null, null, false);
+                };
+            }
+
+            // --- Event Listeners ---
+            sendButton.addEventListener("click", () => {
+                const messageText = messageInput.value.trim();
+                if (messageText && ws && ws.readyState === WebSocket.OPEN) {
+                    const messageData = {
+                        type: "chat",
+                        username: currentUsername,
+                        message: messageText,
+                        timestamp: new Date().toISOString(),
+                    };
+                    ws.send(JSON.stringify(messageData));
+                    messageInput.value = ""; // Clear input
+                } else if (!ws || ws.readyState !== WebSocket.OPEN) {
+                    alert("Chat is not connected. Please wait or refresh.");
+                }
+            });
+
+            messageInput.addEventListener("keypress", (event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    sendButton.click();
+                }
+            });
+
+            fileUploadTrigger.addEventListener("click", () => {
+                fileInput.click(); // Trigger the hidden file input
+            });
+
+            fileInput.addEventListener("change", (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    // IMPORTANT: In a real application, you would upload this file to a server
+                    // (e.g., Vercel Blob, S3) and then send the *URL* of the uploaded file
+                    // via WebSocket. This is a client-side placeholder.
+                    const fileUrl = URL.createObjectURL(file); // Create a temporary URL for display
+                    const fileType = file.type;
+                    const fileName = file.name;
+
+                    // Simulate sending file message via WebSocket
+                    if (ws && ws.readyState === WebSocket.OPEN) {
+                        const fileMessageData = {
+                            type: "file_message",
+                            username: currentUsername,
+                            message: `Uploaded file: ${fileName}`,
+                            timestamp: new Date().toISOString(),
+                            fileUrl: fileUrl, // This URL is only valid in the current browser session
+                            fileType: fileType,
+                        };
+                        ws.send(JSON.stringify(fileMessageData));
+                    } else {
+                        alert("Chat is not connected. Cannot upload file.");
+                    }
+                    fileInput.value = ""; // Clear file input
+                }
+            });
+
+            loginButton.addEventListener("click", () => {
+                // IMPORTANT: This is a placeholder for TryHackMe OAuth.
+                // A real implementation would involve:
+                // 1. Redirecting to TryHackMe's OAuth authorization endpoint.
+                // 2. TryHackMe authenticates the user and redirects back to your server with a code.
+                // 3. Your server exchanges the code for an access token (securely, server-side).
+                // 4. Your server uses the access token to fetch user details (username).
+                // 5. Your server then sends the username to the client via a secure channel (e.g., WebSocket, HTTP response).
+                alert("Simulating TryHackMe Login... (Requires backend for actual OAuth)");
+                // For demonstration, set a mock username
+                currentUsername = "not an actual user";
+                addMessage("System", `Logged in as ${currentUsername} (simulated).`, false, new Date(), null, null, false);
+                // In a real app, after successful login, you'd update the online users list
+                // and potentially send a "user_update" message to the WebSocket server.
+            });
+
+            // --- Initialization ---
+            loadMessagesFromLocalStorage(); // Load messages from local storage on startup
+            connectWebSocket(); // Initiate WebSocket connection on page load
+        });
+    </script>
+</body>
+</html>
