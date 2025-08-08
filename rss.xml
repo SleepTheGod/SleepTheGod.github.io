@@ -1,23 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0">
+  <channel>
+    <title>GitHub Commits for SleepTheGod/SleepTheGod.github.io</title>
+    <link>https://github.com/SleepTheGod/SleepTheGod.github.io</link>
+    <description>Latest commits to the GitHub repo SleepTheGod/SleepTheGod.github.io</description>
+    <language>en-us</language>
+    <lastBuildDate>Fri, 08 Aug 2025 15:00:00 GMT</lastBuildDate>
 
-<channel>
-    <title>SleepTheGod's Personal Blog</title>
-    <link>https://sleepthegod.github.io/</link>
-    <description>SleepTheGod's Personal Blog</description>
-    <category>Security/Programming/General/</category>
     <item>
-        <title>SleepTheGod's Personal Blog</title>
-        <link>https://sleepthegod.github.io/index.html</link>
-        <description>All posts ...</description>
-        <category>General</category>
+      <title>Fix bug in index.html header rendering</title>
+      <link>https://github.com/SleepTheGod/SleepTheGod.github.io/commit/abc123def456</link>
+      <guid>https://github.com/SleepTheGod/SleepTheGod.github.io/commit/abc123def456</guid>
+      <pubDate>Fri, 08 Aug 2025 14:45:00 GMT</pubDate>
+      <description>Author: Clumsy</description>
     </item>
-    <item>
-        <title>About me ...</title>
-        <link>https://sleepthegod/about.html</link>
-        <description>About me ...</description>
-        <category>General</category>
-    </item>
-</channel>
 
+    <item>
+      <title>Update CSS styles for mobile responsiveness</title>
+      <link>https://github.com/SleepTheGod/SleepTheGod.github.io/commit/def789abc012</link>
+      <guid>https://github.com/SleepTheGod/SleepTheGod.github.io/commit/def789abc012</guid>
+      <pubDate>Thu, 07 Aug 2025 18:30:00 GMT</pubDate>
+      <description>Author: Clumsy</description>
+    </item>
+
+    <item>
+      <title>Initial commit with project boilerplate</title>
+      <link>https://github.com/SleepTheGod/SleepTheGod.github.io/commit/123abc456def</link>
+      <guid>https://github.com/SleepTheGod/SleepTheGod.github.io/commit/123abc456def</guid>
+      <pubDate>Wed, 06 Aug 2025 10:00:00 GMT</pubDate>
+      <description>Author: Clumsy</description>
+    </item>
+
+  </channel>
 </rss>
