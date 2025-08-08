@@ -1,16 +1,4 @@
-# robots.txt for SleepTheGod GitHub Pages site
-
 User-agent: *
-Disallow: /private/
-Disallow: /scripts/
-Disallow: /config/
-Disallow: /tmp/
-Disallow: /*.bak$
-Disallow: /*.tmp$
-Disallow: /*.log$
+Disallow:
 
-# Allow all other content
-Allow: /
-
-# Sitemap location
 Sitemap: https://sleepthegod.github.io/sitemap.xml
