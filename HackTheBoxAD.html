@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💀 HackTheBoxAD | PWN AD FOREST 💀</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #000; --neon: #00ff41; --purple: #ff00ff; --glow: #00ff41aa; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Fira Code', monospace; background: var(--bg); color: var(--neon); overflow-x: hidden; }
+        .matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; opacity: 0.1; animation: glitch 5s infinite; }
+        @keyframes glitch { 0%, 100% { transform: translate(0); } 20% { transform: translate(-2px, 2px); } 40% { transform: translate(-2px, -2px); } 60% { transform: translate(2px, 2px); } 80% { transform: translate(2px, -2px); } }
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px; position: relative; z-index: 1; }
+        h1 { font-family: 'Orbitron', monospace; font-size: 4em; text-align: center; background: linear-gradient(45deg, var(--neon), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 30px var(--glow); margin-bottom: 10px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+        .subtitle { text-align: center; font-size: 1.4em; opacity: 0.9; margin-bottom: 50px; }
+        .loot-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .loot-card { background: rgba(26,26,26,0.8); padding: 25px; border: 2px solid var(--neon); border-radius: 15px; transition: all 0.4s ease; box-shadow: 0 0 25px var(--glow); backdrop-filter: blur(10px); }
+        .loot-card:hover { transform: scale(1.05) rotate(1deg); border-color: var(--purple); box-shadow: 0 0 50px var(--purple); }
+        .loot-card h3 { color: var(--purple); margin-bottom: 15px; font-size: 1.3em; }
+        a { color: var(--neon); text-decoration: none; font-weight: 700; transition: 0.3s; }
+        a:hover { color: var(--purple); text-shadow: 0 0 10px var(--purple); }
+        .badge { display: inline-block; background: var(--purple); color: #000; padding: 8px 15px; border-radius: 25px; font-size: 0.85em; margin: 5px 3px; animation: badgeGlow 2s infinite; }
+        @keyframes badgeGlow { 0%, 100% { box-shadow: 0 0 5px var(--purple); } 50% { box-shadow: 0 0 20px var(--purple); } }
+        footer { text-align: center; margin-top: 60px; padding: 30px; border-top: 1px solid var(--neon); opacity: 0.7; }
+        @media (max-width: 768px) { h1 { font-size: 2.5em; } .loot-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <canvas class="matrix-bg" id="matrix"></canvas>
+    <script>
+        // Simple matrix rain effect for HTB vibes
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const chars = '01ハックザボックスPWNDOMAIN'.split('');
+        const drops = Array(100).fill(1).map(() => Math.random() * canvas.height);
+        function draw() { ctx.fillStyle = 'rgba(0,0,0,0.05)'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.fillStyle = '#00ff41'; drops.forEach((y,i) => { ctx.fillText(chars[Math.floor(Math.random()*chars.length)], i*10, y); drops[i] = y > canvas.height || y > 10000 ? 0 : y + 10; }); requestAnimationFrame(draw); } draw();
+    </script>
+    <div class="container">
+        <h1>💀 HackTheBoxAD 💀</h1>
+        <p class="subtitle">PWN AD FORESTS | Cheats for Hercules & Epic Machines | Root the DC with Waifu Hacks! 🔥🖥️</p>
+        
+        <div class="loot-grid">
+            <div class="loot-card">
+                <h3>⚡ QUICK PWNS</h3>
+                <span class="badge">ESC3 Cert Abuse</span>
+                <span class="badge">RBCD Takeover</span>
+                <span class="badge">ACL GenericAll</span>
+                <span class="badge">Bloody Shadow Creds</span>
+            </div>
+            <div class="loot-card">
+                <h3>🛠️ CTF ARSENAL</h3>
+                <p>Certipy | BloodHound | nxc | PowerView | Sliver Implants | Impacket STs</p>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; margin: 60px 0 30px; font-size: 2em;">💣 LOOT ALL SHEETS 💣</h2>
+        <div class="loot-grid">
+            <div class="loot-card"><a href="AD ACLs Cheatsheet.md">🛡️ AD ACLs (Own OUs!)</a></div>
+            <div class="loot-card"><a href="ADCS Attacks with Certipy.md">📜 Certipy ESC Mayhem</a></div>
+            <div class="loot-card"><a href="Abusing Resource-Based Constrained Delegation.md">🤝 RBCD Resource Pwn</a></div>
+            <div class="loot-card"><a href="Abusing Unconstrained Delegation.md">🎟️ Unconstrained Ticket Chaos</a></div>
+            <div class="loot-card"><a href="BloodyAD Cheatsheet.md">🩸 BloodyAD Bloodbath</a></div>
+            <div class="loot-card"><a href="CHEATS.md">🎮 Godmode CHEATS</a></div>
+            <div class="loot-card"><a href="Getting started with Sliver C2.md">🕹️ Sliver C2 Implantz</a></div>
+            <div class="loot-card"><a href="TOOLS.md">🛠️ HTB Tool Arsenal</a></div>
+            <div class="loot-card"><a href="Windows Privilege Escalation.md">📈 WinPE to DA Escalation</a></div>
+        </div>
+
+        <footer>
+            <p>Rooted by <span class="badge">HTB Legend</span> | <a href="https://forum.hackthebox.com">HTB Forums</a> | <a href="https://discord.gg/hackthebox">Raid Discord</a> | <a href="https://app.hackthebox.com/profile/42069">Profile Flex</a></p>
+            <p><a href="https://github.com/SleepTheGod/HackTheBoxAD">GitHub Loot Den</a> | GG WP | #HTB #ADpwn #Rooted 🖤</p>
+        </footer>
+    </div>
+</body>
+</html>
