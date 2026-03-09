@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Adrian Dittmann Live Space & Feed</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    :root {
+      --bg: #000;
+      --text: #e7e9ea;
+      --text-secondary: #71767b;
+      --accent: #1d9bf0;
+      --purple: #8b5cf6;
+      --card: #16181c;
+      --red: #e53e3e;
+    }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      padding: 12px 16px;
+      border-bottom: 1px solid #2f3336;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: var(--bg);
+      z-index: 10;
+    }
+    .logo { font-size: 1.5rem; font-weight: bold; }
+    .back-btn { background: none; border: none; color: var(--text); font-size: 1.4rem; cursor: pointer; }
+    main { flex: 1; padding: 20px; text-align: center; }
+    .space-circle {
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin: 0 auto 24px;
+      box-shadow: 0 0 60px rgba(139, 92, 246, 0.4);
+      position: relative;
+    }
+    .space-circle img { width: 100%; height: 100%; object-fit: cover; }
+    h1 { font-size: 2.1rem; margin: 0 0 12px; }
+    .host { color: var(--accent); font-weight: 600; margin-bottom: 8px; font-size: 1.3rem; }
+    .status { font-size: 1.2rem; margin-bottom: 16px; }
+    .live { color: var(--red); font-weight: bold; }
+    .offline { color: var(--text-secondary); }
+    .notify-btn {
+      background: var(--purple);
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      margin: 16px 0 32px;
+      transition: background 0.2s;
+    }
+    .notify-btn:hover { background: #7c3aed; }
+    .notify-btn:disabled { background: #4a5568; cursor: not-allowed; }
+    .player-controls { display: flex; justify-content: center; gap: 32px; margin: 32px 0; }
+    .btn {
+      background: var(--card);
+      border: 1px solid var(--text-secondary);
+      color: var(--text);
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover { background: var(--accent); border-color: var(--accent); transform: scale(1.08); }
+    .btn-primary { background: var(--purple); border: none; font-size: 2rem; }
+    .btn-primary:hover { background: #7c3aed; }
+    .progress-bar {
+      width: 80%;
+      max-width: 500px;
+      height: 4px;
+      background: #2f3336;
+      border-radius: 2px;
+      margin: 0 auto 40px;
+    }
+    .progress { width: 0%; height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.3s; }
+    .description { max-width: 500px; margin: 0 auto 40px; color: var(--text-secondary); line-height: 1.6; }
+    .feed-section {
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid #2f3336;
+    }
+    .feed-section h2 { font-size: 1.8rem; margin-bottom: 20px; }
+    footer {
+      padding: 20px;
+      text-align: center;
+      color: var(--text-secondary);
+      border-top: 1px solid #2f3336;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <button class="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i></button>
+    <div class="logo">Adrian Dittmann Hub</div>
+    <div></div>
+  </header>
+
+  <main>
+    <div class="space-circle">
+      <img src="https://pbs.twimg.com/profile_images/1715183897297002496/67FPPcja.png" alt="Adrian Dittmann">
+    </div>
+
+    <h1>Thoughts, Tech, Space & Vibes</h1>
+    <div class="host">Hosted by @AdrianDittmann</div>
+
+    <div class="status" id="liveStatus">Checking status...</div>
+
+    <button class="notify-btn" id="notifyBtn">Notify me when Adrian goes LIVE</button>
+
+    <div class="player-controls" id="controls" style="display: none;">
+      <button class="btn"><i class="fas fa-backward"></i></button>
+      <button class="btn btn-primary" id="playPause"><i class="fas fa-pause"></i></button>
+      <button class="btn"><i class="fas fa-forward"></i></button>
+    </div>
+
+    <div class="progress-bar" id="progressBar" style="display: none;">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <p class="description" id="desc">
+      Life is too short — have fun, fall in love, regret nothing. Chatting Starship, AI, memes, freedom, and whatever's on my mind. Join if you're up for real talk.
+    </p>
+
+    <div id="liveLink" style="display: none; margin: 20px 0;">
+      <a href="https://x.com/i/spaces/1qxvvkekYMexB" target="_blank" style="color: var(--accent); font-size: 1.3rem; text-decoration: none;">
+        → Listen Live on X <i class="fas fa-external-link-alt"></i>
+      </a>
+    </div>
+
+    <!-- Embedded X Feed -->
+    <section class="feed-section">
+      <h2>@AdrianDittmann's Latest Feed</h2>
+      <!-- Paste your customized embed code from https://publish.twitter.com here -->
+      <!-- Example: Go to https://publish.twitter.com, enter https://x.com/AdrianDittmann, customize (dark theme recommended), copy & paste below -->
+      <a class="twitter-timeline" data-theme="dark" href="https://twitter.com/AdrianDittmann?ref_src=twsrc%5Etfw">Tweets by AdrianDittmann</a> 
+      <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    </section>
+  </main>
+
+  <footer>
+    <p>Unofficial fan hub for @AdrianDittmann • <a href="https://x.com/AdrianDittmann" style="color: var(--accent);">View full profile on X</a></p>
+    <p>Life is too short to worry about stupid things. Have fun. Fall in love. Regret nothing.</p>
+  </footer>
+
+  <script>
+    const notifyBtn = document.getElementById('notifyBtn');
+    const liveStatus = document.getElementById('liveStatus');
+    const controls = document.getElementById('controls');
+    const progressBar = document.getElementById('progressBar');
+    const progress = document.getElementById('progress');
+    const liveLink = document.getElementById('liveLink');
+    const playPause = document.getElementById('playPause');
+
+    let notified = localStorage.getItem('adrianNotified') === 'true';
+    let isLive = false; // Simulated — replace with real check
+    let interval;
+
+    // Request notification permission
+    function requestNotification() {
+      if (!("Notification" in window)) {
+        alert("Notifications not supported in this browser.");
+        return;
+      }
+      Notification.requestPermission().then(perm => {
+        if (perm === "granted") {
+          localStorage.setItem('adrianNotified', 'true');
+          notifyBtn.textContent = "Notifications Enabled ✓";
+          notifyBtn.disabled = true;
+          startPolling();
+        } else {
+          alert("Notifications denied. You won't get alerts.");
+        }
+      });
+    }
+
+    // Simulate polling for live status (every 5 min)
+    function startPolling() {
+      checkLiveStatus(); // Initial check
+      interval = setInterval(checkLiveStatus, 300000); // 5 minutes
+    }
+
+    async function checkLiveStatus() {
+      // Real implementation would use fetch to X API or proxy (e.g., search recent posts for /i/spaces/)
+      // For demo: Use a known/recent peek link or hardcode false/true
+      // Example placeholder: Assume live if we have a Space ID
+      const mockLive = true; // Change to false to test offline
+      const spaceUrl = "https://x.com/i/spaces/1qxvvkekYMexB"; // From recent post
+
+      if (mockLive) {
+        isLive = true;
+        liveStatus.innerHTML = '<span class="live">LIVE NOW</span> • ~12k listeners';
+        controls.style.display = 'flex';
+        progressBar.style.display = 'block';
+        liveLink.style.display = 'block';
+        progress.style.width = '65%'; // Fake progress
+
+        if (Notification.permission === "granted" && !notified) {
+          new Notification("Adrian Dittmann is LIVE!", {
+            body: "Join the Space now — thoughts, vibes, and more!",
+            icon: "https://pbs.twimg.com/profile_images/1715183897297002496/67FPPcja.png"
+          });
+          localStorage.setItem('adrianNotified', 'true'); // Only notify once per session/load
+        }
+      } else {
+        isLive = false;
+        liveStatus.textContent = "Offline • Last Space: Recent vibes chat";
+        controls.style.display = 'none';
+        progressBar.style.display = 'none';
+        liveLink.style.display = 'none';
+      }
+    }
+
+    // Play/pause toggle (fake)
+    playPause.addEventListener('click', () => {
+      if (playPause.innerHTML.includes('pause')) {
+        playPause.innerHTML = '<i class="fas fa-play"></i>';
+      } else {
+        playPause.innerHTML = '<i class="fas fa-pause"></i>';
+      }
+    });
+
+    notifyBtn.addEventListener('click', requestNotification);
+
+    // On load: If already permitted, start polling
+    if (localStorage.getItem('adrianNotified') === 'true' && Notification.permission === "granted") {
+      notifyBtn.textContent = "Notifications Enabled ✓";
+      notifyBtn.disabled = true;
+      startPolling();
+    }
+
+    // Initial status check
+    checkLiveStatus();
+  </script>
+
+</body>
+</html>
