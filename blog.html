@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SLEEPRAPS ZINE · Security Writeups</title>
+    <style>
+        :root {
+            --green: #0f0;
+            --black: #000;
+            --glow: 0 0 5px rgba(0, 255, 0, 0.7);
+            --font: 'Courier New', Courier, monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            height: 100vh;
+            overflow: hidden;
+            font-family: var(--font);
+            color: var(--green);
+            text-shadow: var(--glow);
+        }
+
+        .terminal {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #000;
+            overflow: hidden;
+        }
+
+        /* CRT scanlines overlay */
+        .terminal::after {
+            content: " ";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg,
+                    rgba(0, 255, 0, 0.03) 0px,
+                    rgba(0, 255, 0, 0.03) 1px,
+                    transparent 1px,
+                    transparent 2px);
+            z-index: 2;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.97; }
+            5% { opacity: 0.95; }
+            10% { opacity: 0.98; }
+            15% { opacity: 0.94; }
+            20% { opacity: 0.99; }
+            50% { opacity: 0.96; }
+            80% { opacity: 0.98; }
+            100% { opacity: 0.97; }
+        }
+
+        .output-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            font-size: 16px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .output-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .output-container::-webkit-scrollbar-track {
+            background: #000;
+        }
+        .output-container::-webkit-scrollbar-thumb {
+            background: #0f0;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            border-top: 1px dashed #0f0;
+            background: #000;
+            z-index: 3;
+            position: relative;
+        }
+
+        .prompt {
+            color: var(--green);
+            text-shadow: var(--glow);
+            white-space: nowrap;
+        }
+
+        #cmdline {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--green);
+            font-family: inherit;
+            font-size: 16px;
+            text-shadow: var(--glow);
+            caret-color: var(--green);
+            margin-left: 5px;
+        }
+
+        #cmdline::selection {
+            background: #0f0;
+            color: #000;
+        }
+
+        /* Leet mode class (toggled) */
+        .leet .terminal {
+            background: #200;
+        }
+        .leet .terminal::after {
+            background: repeating-linear-gradient(0deg,
+                    rgba(255, 0, 0, 0.05) 0px,
+                    rgba(255, 0, 0, 0.05) 1px,
+                    transparent 1px,
+                    transparent 2px);
+        }
+        .leet,
+        .leet .prompt,
+        .leet #cmdline,
+        .leet .output-container {
+            color: #f00;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.7);
+        }
+        .leet .input-container {
+            border-color: #f00;
+        }
+        .leet #cmdline {
+            caret-color: #f00;
+        }
+
+        /* Preformatted ascii */
+        pre {
+            font-family: var(--font);
+            line-height: 1.2;
+        }
+    </style>
+</head>
+<body class="">
+    <div class="terminal">
+        <div class="output-container" id="output"></div>
+        <div class="input-container">
+            <span class="prompt">taylor@blog:~$</span>
+            <input type="text" id="cmdline" autofocus autocomplete="off" spellcheck="false">
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ── Blog posts ──────────────────────────────
+            const posts = [
+                {
+                    slug: 'buffer-overflow-vulnserver',
+                    title: 'Buffer Overflow Exploit: Vulnserver TRUN',
+                    date: '2025-04-15',
+                    content: `
+                        <h2>Buffer Overflow Exploit: Vulnserver TRUN</h2>
+                        <p><strong>Date:</strong> 2025-04-15</p>
+                        <p><strong>Tools:</strong> Immunity Debugger, msfvenom, Python</p>
+                        <h3>Overview</h3>
+                        <p>Vulnserver's TRUN command is vulnerable to a classic stack-based buffer overflow. By sending a payload larger than the buffer, we gain EIP control.</p>
+                        <h3>Steps</h3>
+                        <ol>
+                            <li>Spike the service with increasing buffer sizes to find the crash offset.</li>
+                            <li>Use pattern_create/pattern_offset to locate EIP overwrite at 2003 bytes.</li>
+                            <li>Confirm with a cyclic pattern and verify the offset.</li>
+                            <li>Locate a JMP ESP gadget in essfunc.dll (0x625011AF).</li>
+                            <li>Generate shellcode with msfvenom and prepend NOP sled.</li>
+                            <li>Craft final exploit: buffer + JMP ESP + NOPs + shellcode.</li>
+                        </ol>
+                        <h3>Mitigation</h3>
+                        <p>Bounds checking, use safe functions (strncpy), enable DEP/ASLR.</p>
+                        <p><strong>Lesson learned:</strong> Always check input length before copying.</p>
+                    `
+                },
+                {
+                    slug: 'htb-bastion',
+                    title: 'HackTheBox Machine — Bastion',
+                    date: '2025-03-20',
+                    content: `
+                        <h2>HackTheBox: Bastion</h2>
+                        <p><strong>Date:</strong> 2025-03-20</p>
+                        <p><strong>Platform:</strong> Windows</p>
+                        <h3>Recon</h3>
+                        <p>Nmap revealed SMB shares and a VHD backup file. Mounted the VHD and extracted the SAM/SYSTEM hives.</p>
+                        <h3>Exploitation</h3>
+                        <p>Dumped local password hashes using pwdump, cracked one offline to gain access via RDP.</p>
+                        <h3>Privilege Escalation</h3>
+                        <p>Found an unquoted service path for 'mRemoteNG', used it to spawn a SYSTEM shell.</p>
+                        <p><strong>Takeaway:</strong> Always check for misconfigurations in service paths.</p>
+                    `
+                },
+                {
+                    slug: 'ctf-crypto-101',
+                    title: 'CTF Challenge: Crypto 101',
+                    date: '2025-02-10',
+                    content: `
+                        <h2>CTF Challenge: Crypto 101</h2>
+                        <p><strong>Date:</strong> 2025-02-10</p>
+                        <p><strong>Category:</strong> Cryptography</p>
+                        <h3>Challenge Description</h3>
+                        <p>We received a ciphertext: "Mpwtpgp jzf nly lyo lcp slwqop".</p>
+                        <h3>Approach</h3>
+                        <p>Recognised as a Caesar cipher. Bruteforced all 25 shifts and found the plaintext at shift +11: "Welcome to the art of code breaking".</p>
+                        <h3>Mitigation</h3>
+                        <p>Caesar is not encryption — use modern crypto (AES, RSA).</p>
+                    `
+                }
+            ];
+
+            // ── Fortunes for daily comeback ────────────
+            const fortunes = [
+                "The quieter you become, the more you are able to hear.",
+                "HACK THE PLANET!",
+                "There is no spoon.",
+                "Knowledge is free. We are anonymous. We are legion.",
+                "If you spend more on coffee than on your education, you’re doing it wrong.",
+                "Exploitation is a consequence, not a goal.",
+                "Trust the process, not the tool.",
+                "Curiosity killed the cat, but satisfaction brought it back."
+            ];
+
+            // ── ASCII skull (e-zine feel) ──────────────
+            const skullAscii = `
+    .o oOOOOOOOo                                            OOOo
+    Ob.OOOOOOOo  OOOo.      oOOo.                      .adOOOOOOO
+    OboO"""""""""""".OOo. .oOOOOOo.    OOOo.oOOOOOo.."""""""""'OO
+    OOP.oOOOOOOOOOOO "POOOOOOOOOOOo.   `"OOOOOOOOOP,OOOOOOOOOOOB'
+    `O'OOOO'     `OOOOo"OOOOOOOOOOO` .adOOOOOOOOO"oOOO'    `OOOOo
+    .OOOO'            `OOOOOOOOOOOOOOOOOOOOOOOOOO'            `OO
+    OOOOO                 '"OOOOOOOOOOOOOOOO"`                oOO
+   oOOOOOba.                .adOOOOOOOOOOba               .adOOOOo.
+  oOOOOOOOOOOOOOba.    .adOOOOOOOOOO@^OOOOOOOba.     .adOOOOOOOOOOOO
+ OOOOOOOOOOOOOOOOO.OOOOOOOOOOOOOO"`  '"OOOOOOOOOOOOO.OOOOOOOOOOOOOO
+ "OOOO"       "YOoOOOOMOIONODOO"`  .   '"OOROAOPOEOOOoOY"     "OOO"
+    Y           'OOOOOOOOOOOOOO: .oOOo. :OOOOOOOOOOO?'         :`
+    :            .oO%OOOOOOOOOOo.OOOOOO.oOOOOOOOOOOOO?         .
+    .            oOOP"%OOOOOOOOoOOOOOOO?oOOOOO?OOOO"OOo
+                 '%o  OOOO"%OOOO%"%OOOOO"OOOOOO"OOO':
+                      `$"  `OOOO' `O"Y ' `OOOO'  o             .
+    .                  .     OP"          : o     .
+
+            `;
+
+            const bannerTxt = `
+╔══════════════════════════════════════════╗
+║        SLEEPRAPS BLOG                     ║
+║     Security Research & Writeups          ║
+╚══════════════════════════════════════════╝`;
+
+            // ── State ──────────────────────────────────
+            const outputEl = document.getElementById('output');
+            const cmdInput = document.getElementById('cmdline');
+            const terminal = document.querySelector('.terminal');
+            let cmdHistory = JSON.parse(localStorage.getItem('cmdHistory') || '[]');
+            let historyIdx = -1;
+            let leetMode = false;
+
+            // ── Helpers ────────────────────────────────
+            function scrollBottom() {
+                const container = outputEl.parentElement; // .output-container
+                container.scrollTop = container.scrollHeight;
+            }
+
+            function addHTML(html) {
+                const div = document.createElement('div');
+                div.innerHTML = html;
+                outputEl.appendChild(div);
+                scrollBottom();
+            }
+
+            function addText(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                outputEl.appendChild(div);
+                scrollBottom();
+            }
+
+            function echoCommand(cmd) {
+                addHTML(`<span class="prompt">taylor@blog:~$</span> <span class="cmd">${cmd}</span>`);
+            }
+
+            // ── Command processors ─────────────────────
+            function showHelp() {
+                addHTML(`
+                    <pre>
+Available commands:
+  whoami    - About Taylor Christian Newsome
+  ls        - List writeups
+  cat &lt;slug&gt; - Read a writeup (e.g., cat buffer-overflow-vulnserver)
+  clear     - Clear the screen
+  date      - Current date and time
+  fortune   - Random wisdom
+  banner    - Show the skull
+  neofetch  - System info (retro)
+  history   - Show command history
+  elite     - Toggle leet mode
+  help      - Show this message
+                    </pre>`);
+            }
+
+            function showWhoami() {
+                addHTML(`
+                    <pre>${skullAscii}</pre>
+                    <h2>whoami</h2>
+                    <p>I’m a self-taught security researcher. I break things ethically, figure out why they broke, and document the process. My work covers vulnerability research, binary exploitation, reverse engineering, web application hacking, and CTF challenges. This blog is my lab notebook — where experiments, proofs-of-concept, and lessons learned all live. No handshakes, no hype, just the work.</p>
+                `);
+            }
+
+            function listPosts() {
+                let list = posts.map((p, i) => `${p.slug.padEnd(25)} ${p.title} (${p.date})`).join('\n');
+                addHTML(`<pre>${list}</pre>`);
+            }
+
+            function catPost(slug) {
+                const post = posts.find(p => p.slug === slug);
+                if (!post) {
+                    addText(`cat: ${slug}: No such writeup`);
+                    return;
+                }
+                addHTML(post.content);
+            }
+
+            function showFortune() {
+                const f = fortunes[Math.floor(Math.random() * fortunes.length)];
+                addHTML(`<p style="font-style:italic">“${f}”</p>`);
+            }
+
+            function showBanner() {
+                addHTML(`<pre>${skullAscii}</pre>`);
+                addHTML(`<pre>${bannerTxt}</pre>`);
+            }
+
+            function showNeofetch() {
+                const now = new Date();
+                const uptime = Math.floor((now - performance.timeOrigin) / 1000);
+                const uptimeStr = `${Math.floor(uptime / 3600)}h ${Math.floor((uptime % 3600) / 60)}m ${uptime % 60}s`;
+                const info = `
+        taylor@blog
+        OS: 1337 ZineOS
+        Shell: bash 5.1
+        Uptime: ${uptimeStr}
+        Resolution: terminal 80x24
+        Memory: ∞ (or close enough)
+                `;
+                addHTML(`<pre>${info}</pre>`);
+            }
+
+            function showHistory() {
+                if (cmdHistory.length === 0) {
+                    addText('No commands in history.');
+                    return;
+                }
+                const list = cmdHistory.map((cmd, i) => `  ${(i+1).toString().padStart(3)}  ${cmd}`).join('\n');
+                addHTML(`<pre>${list}</pre>`);
+            }
+
+            function toggleLeet() {
+                leetMode = !leetMode;
+                if (leetMode) {
+                    document.body.classList.add('leet');
+                    addText('Leet mode activated. Prepare to hack the planet.');
+                } else {
+                    document.body.classList.remove('leet');
+                    addText('Leet mode deactivated. Back to stealth.');
+                }
+            }
+
+            function clearScreen() {
+                outputEl.innerHTML = '';
+            }
+
+            function processCommand(cmdStr) {
+                const trimmed = cmdStr.trim();
+                if (!trimmed) return;
+
+                // Update history
+                cmdHistory.push(trimmed);
+                if (cmdHistory.length > 50) cmdHistory.shift();
+                localStorage.setItem('cmdHistory', JSON.stringify(cmdHistory));
+                historyIdx = -1;
+
+                // Echo command
+                echoCommand(trimmed);
+
+                // Parse
+                const parts = trimmed.split(/\s+/);
+                const cmd = parts[0].toLowerCase();
+                const arg = parts.slice(1).join(' ');
+
+                switch (cmd) {
+                    case 'help':
+                        showHelp();
+                        break;
+                    case 'whoami':
+                        showWhoami();
+                        break;
+                    case 'ls':
+                    case 'list':
+                        listPosts();
+                        break;
+                    case 'cat':
+                        if (!arg) {
+                            addText('cat: missing operand');
+                        } else {
+                            catPost(arg.toLowerCase());
+                        }
+                        break;
+                    case 'clear':
+                        clearScreen();
+                        break;
+                    case 'date':
+                        addText(new Date().toString());
+                        break;
+                    case 'fortune':
+                        showFortune();
+                        break;
+                    case 'banner':
+                        showBanner();
+                        break;
+                    case 'neofetch':
+                        showNeofetch();
+                        break;
+                    case 'history':
+                        showHistory();
+                        break;
+                    case 'elite':
+                    case '1337':
+                        toggleLeet();
+                        break;
+                    default:
+                        addText(`bash: ${cmd}: command not found`);
+                }
+            }
+
+            // ── Keyboard handling ──────────────────────
+            cmdInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    const val = cmdInput.value;
+                    processCommand(val);
+                    cmdInput.value = '';
+                    e.preventDefault();
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (cmdHistory.length === 0) return;
+                    if (historyIdx === -1) {
+                        historyIdx = cmdHistory.length - 1;
+                    } else if (historyIdx > 0) {
+                        historyIdx--;
+                    }
+                    cmdInput.value = cmdHistory[historyIdx] || '';
+                    // Move cursor to end
+                    cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length);
+                } else if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (historyIdx === -1) return;
+                    if (historyIdx < cmdHistory.length - 1) {
+                        historyIdx++;
+                        cmdInput.value = cmdHistory[historyIdx];
+                    } else {
+                        historyIdx = -1;
+                        cmdInput.value = '';
+                    }
+                    cmdInput.setSelectionRange(cmdInput.value.length, cmdInput.value.length);
+                }
+            });
+
+            // Keep focus on input when clicking anywhere
+            document.addEventListener('click', () => cmdInput.focus());
+
+            // ── Boot sequence ──────────────────────────
+            function boot() {
+                // Welcome message (MOTD)
+                addHTML(`<pre>${skullAscii}</pre>`);
+                addHTML(`<pre>${bannerTxt}</pre>`);
+                addHTML('<p>Welcome, Taylor. Today\'s thought:</p>');
+                const dailyFortune = fortunes[new Date().getDate() % fortunes.length];
+                addHTML(`<p style="font-style:italic">“${dailyFortune}”</p>`);
+                addHTML('<p>Type <strong>help</strong> to see what you can do here.</p>');
+                addHTML('<br>');
+                cmdInput.focus();
+            }
+
+            boot();
+        })();
+    </script>
+</body>
+</html>
